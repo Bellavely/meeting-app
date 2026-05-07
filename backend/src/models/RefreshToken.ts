@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { query } from '../config/db';
-import { keysToCamel } from '../utils/caseMapper';
+import { keysToCamel } from '../utils';
 import { RefreshToken } from '../types';
 
 export const createRefreshToken = async (userId: string, expiresInDays = 30): Promise<string> => {

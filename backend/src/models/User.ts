@@ -1,15 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { query } from '../config/db';
-import { keysToCamel } from '../utils/caseMapper';
-
-export interface User {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    password?: string;
-    createdAt: Date;
-}
+import { keysToCamel } from '../utils';
+import { User } from '../types';
 
 export const createUser = async (userData: Partial<User>): Promise<User> => {
     const { firstName, lastName, email, password } = userData;
