@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { StatusCodes } from 'http-status-codes';
 import { createUser, findUserByEmail, validatePassword } from '../models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbacksecret';
@@ -9,12 +10,12 @@ export const register = async (req: Request, res: Response) => {
         const { firstName, lastName, email, password } = req.body;
 
         if (!firstName || !lastName || !email || !password) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'All fields are required' });
         }
 
         const existingUser = await findUserByEmail(email);
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(StatusCodes.CONFLICT).json({ message: 'User already exists' });
         }
 
         const user = await createUser({
@@ -24,13 +25,13 @@ export const register = async (req: Request, res: Response) => {
             password
         });
 
-        res.status(201).json({
+        res.status(StatusCodes.CREATED).json({
             message: 'User registered successfully',
             user
         });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
     }
 };
 
@@ -39,17 +40,17 @@ export const login = async (req: Request, res: Response) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ message: 'Email and password are required' });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Email and password are required' });
         }
 
         const user = await findUserByEmail(email);
         if (!user || !user.password) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' });
         }
 
         const isPasswordValid = await validatePassword(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' });
         }
 
         const token = jwt.sign(
@@ -58,7 +59,7 @@ export const login = async (req: Request, res: Response) => {
             { expiresIn: '24h' }
         );
 
-        res.json({
+        res.status(StatusCodes.OK).json({
             message: 'Login successful',
             token,
             user: {
@@ -70,6 +71,6 @@ export const login = async (req: Request, res: Response) => {
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
     }
 };

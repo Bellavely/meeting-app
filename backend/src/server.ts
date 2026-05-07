@@ -1,8 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import pool from './config/db';
+import { StatusCodes } from 'http-status-codes';
 import { routes } from './routes';
+import { pool } from './config/db';
 
 dotenv.config();
 
@@ -13,12 +14,12 @@ app.use(cors());
 app.use(express.json());
 app.use(routes);
 
-app.get('/health', async (req, res) => {
+app.get('/health', async (_req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
-    res.json({ status: 'ok', time: result.rows[0].now });
+    res.status(StatusCodes.OK).json({ status: 'ok', time: result.rows[0].now });
   } catch (err) {
-    res.status(500).json({ status: 'error', message: (err as Error).message });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: 'error', message: (err as Error).message });
   }
 });
 
