@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import { createUser, findUserByEmail, getUserById, validatePassword } from '../models/User';
-import { createRefreshToken, findRefreshToken, deleteRefreshToken } from '../models/RefreshToken';
+import { createRefreshToken, findRefreshToken, deleteRefreshToken, updateRefreshToken } from '../models/RefreshToken';
 import { registerSchema, loginSchema } from '../validators/authValidators';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbacksecret';
@@ -110,12 +110,12 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
         const newRefreshToken = await createRefreshToken(tokenUser.id);
         const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
 
-    res.cookie('refreshToken', refreshToken, {
+        res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 30 * 24 * 60 * 60 * 1000
-    });
+        });
 
         res.status(StatusCodes.OK).json({ accessToken        });
     } catch (error) {

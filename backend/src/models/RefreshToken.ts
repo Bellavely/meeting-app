@@ -17,6 +17,16 @@ export const createRefreshToken = async (userId: string, expiresInDays = 30): Pr
     return token;
 };
 
+export const updateRefreshToken = async (userId:string , token: string) => {
+
+    const sql = `
+        UPDATE refresh_tokens SET token = $1 WHERE user_id = $2
+        RETURNING token
+    `;
+
+    await query(sql, [token, userId]);
+};
+
 export const findRefreshToken = async (token: string): Promise<RefreshToken | null> => {
     const sql = `SELECT * FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()`;
     const result = await query(sql, [token]);
