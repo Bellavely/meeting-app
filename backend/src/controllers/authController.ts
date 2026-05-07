@@ -2,9 +2,14 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import { createUser, findUserByEmail, validatePassword } from '../models/User';
+import { createRefreshToken, findRefreshToken, deleteRefreshToken, deleteAllUserRefreshTokens } from '../models/RefreshToken';
 import { registerSchema, loginSchema } from '../validators/authValidators';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbacksecret';
+
+const generateAccessToken = (userId: string, email: string): string => {
+    return jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '15m' });
+};
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -64,15 +69,13 @@ export const login = async (req: Request, res: Response) => {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' });
         }
 
-        const accessToken = jwt.sign(
-            { id: user.id, email: user.email },
-            JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const accessToken = generateAccessToken(user.id, user.email);
+        const refreshToken = await createRefreshToken(user.id);
 
         res.status(StatusCodes.OK).json({
             message: 'Login successful',
             accessToken,
+            refreshToken,
             user: {
                 id: user.id,
                 firstName: user.first_name,
@@ -82,6 +85,58 @@ export const login = async (req: Request, res: Response) => {
         });
     } catch (error) {
         console.error('Login error:', error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    }
+};
+
+export const refresh = async (req: Request, res: Response) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Refresh token is required' });
+        }
+
+        const storedToken = await findRefreshToken(refreshToken);
+        if (!storedToken) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid or expired refresh token' });
+        }
+
+        const user = await findUserByEmail('');
+        // Look up user by ID from the stored token
+        const { query } = await import('../config/db');
+        const result = await query('SELECT id, email FROM users WHERE id = $1', [storedToken.user_id]);
+        const tokenUser = result.rows[0];
+
+        if (!tokenUser) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'User not found' });
+        }
+
+        await deleteRefreshToken(refreshToken);
+        const newRefreshToken = await createRefreshToken(tokenUser.id);
+        const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
+
+        res.status(StatusCodes.OK).json({
+            accessToken,
+            refreshToken: newRefreshToken
+        });
+    } catch (error) {
+        console.error('Refresh error:', error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+    }
+};
+
+export const logout = async (req: Request, res: Response) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (refreshToken) {
+            await deleteRefreshToken(refreshToken);
+        }
+
+        res.status(StatusCodes.OK).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Logout error:', error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
     }
 };

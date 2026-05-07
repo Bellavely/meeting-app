@@ -12,7 +12,7 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use(routes);
+app.use('/api',routes);
 
 app.get('/health', async (_req, res) => {
   try {

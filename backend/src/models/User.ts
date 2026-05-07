@@ -10,7 +10,7 @@ export interface User {
     created_at: Date;
 }
 
-export const createUser = async (userData: Partial<User>): Promise<User> => {
+export const createUser = async (userData: Partial<User>)=> {
     const { first_name, last_name, email, password } = userData;
     
     if (!password) {
@@ -29,7 +29,7 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
     return result.rows[0];
 };
 
-export const findUserByEmail = async (email: string): Promise<User | null> => {
+export const findUserByEmail = async (email: string) => {
     const sql = `SELECT * FROM users WHERE email = $1`;
     const result = await query(sql, [email]);
     return result.rows[0] || null;
