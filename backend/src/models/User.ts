@@ -1,17 +1,18 @@
 import bcrypt from 'bcryptjs';
 import { query } from '../config/db';
+import { keysToCamel } from '../utils/caseMapper';
 
 export interface User {
     id: string;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password?: string;
-    created_at: Date;
+    createdAt: Date;
 }
 
-export const createUser = async (userData: Partial<User>)=> {
-    const { first_name, last_name, email, password } = userData;
+export const createUser = async (userData: Partial<User>): Promise<User> => {
+    const { firstName, lastName, email, password } = userData;
     
     if (!password) {
         throw new Error('Password is required');
@@ -25,14 +26,20 @@ export const createUser = async (userData: Partial<User>)=> {
         RETURNING id, first_name, last_name, email, created_at
     `;
     
-    const result = await query(sql, [first_name, last_name, email, hashedPassword]);
-    return result.rows[0];
+    const result = await query(sql, [firstName, lastName, email, hashedPassword]);
+    return keysToCamel(result.rows[0]);
 };
 
-export const findUserByEmail = async (email: string) => {
+export const getUserById = async (id: string): Promise<User | null> => {
+    const sql = `SELECT * FROM users WHERE id = $1`;
+    const result = await query(sql, [id]);
+    return result.rows[0] ? keysToCamel(result.rows[0]) : null;
+};
+
+export const findUserByEmail = async (email: string): Promise<User | null> => {
     const sql = `SELECT * FROM users WHERE email = $1`;
     const result = await query(sql, [email]);
-    return result.rows[0] || null;
+    return result.rows[0] ? keysToCamel(result.rows[0]) : null;
 };
 
 export const validatePassword = async (password: string, hash: string): Promise<boolean> => {

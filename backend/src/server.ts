@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
 import { routes } from './routes';
 import { pool } from './config/db';
+import { errorMiddleware } from './middleware/errorMiddleware';
 
 dotenv.config();
 
@@ -12,7 +13,9 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use('/api',routes);
+app.use(routes);
+
+app.use(errorMiddleware);
 
 app.get('/health', async (_req, res) => {
   try {

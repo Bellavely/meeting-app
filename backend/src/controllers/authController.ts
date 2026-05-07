@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
-import { createUser, findUserByEmail, validatePassword } from '../models/User';
-import { createRefreshToken, findRefreshToken, deleteRefreshToken, deleteAllUserRefreshTokens } from '../models/RefreshToken';
+import { createUser, findUserByEmail, getUserById, validatePassword } from '../models/User';
+import { createRefreshToken, findRefreshToken, deleteRefreshToken } from '../models/RefreshToken';
 import { registerSchema, loginSchema } from '../validators/authValidators';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbacksecret';
@@ -11,7 +11,7 @@ const generateAccessToken = (userId: string, email: string): string => {
     return jwt.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '15m' });
 };
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const parsed = registerSchema.safeParse(req.body);
 
@@ -30,8 +30,8 @@ export const register = async (req: Request, res: Response) => {
         }
 
         const user = await createUser({
-            first_name: firstName,
-            last_name: lastName,
+            firstName,
+            lastName,
             email,
             password
         });
@@ -41,12 +41,11 @@ export const register = async (req: Request, res: Response) => {
             user
         });
     } catch (error) {
-        console.error('Registration error:', error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const parsed = loginSchema.safeParse(req.body);
 
@@ -78,18 +77,17 @@ export const login = async (req: Request, res: Response) => {
             refreshToken,
             user: {
                 id: user.id,
-                firstName: user.first_name,
-                lastName: user.last_name,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 email: user.email
             }
         });
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const refresh = async (req: Request, res: Response) => {
+export const refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { refreshToken } = req.body;
 
@@ -102,31 +100,30 @@ export const refresh = async (req: Request, res: Response) => {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid or expired refresh token' });
         }
 
-        const user = await findUserByEmail('');
-        // Look up user by ID from the stored token
-        const { query } = await import('../config/db');
-        const result = await query('SELECT id, email FROM users WHERE id = $1', [storedToken.user_id]);
-        const tokenUser = result.rows[0];
+        const tokenUser = await getUserById(storedToken.userId)
 
         if (!tokenUser) {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'User not found' });
         }
 
-        await deleteRefreshToken(refreshToken);
+        await updateRefreshToken(storedToken.id, refreshToken);
         const newRefreshToken = await createRefreshToken(tokenUser.id);
         const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
 
-        res.status(StatusCodes.OK).json({
-            accessToken,
-            refreshToken: newRefreshToken
-        });
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    });
+
+        res.status(StatusCodes.OK).json({ accessToken        });
     } catch (error) {
-        console.error('Refresh error:', error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { refreshToken } = req.body;
 
@@ -136,7 +133,8 @@ export const logout = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({ message: 'Logged out successfully' });
     } catch (error) {
-        console.error('Logout error:', error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+        next(error);
     }
 };
+
+

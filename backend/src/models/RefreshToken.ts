@@ -1,15 +1,9 @@
 import crypto from 'crypto';
 import { query } from '../config/db';
+import { keysToCamel } from '../utils/caseMapper';
+import { RefreshToken } from '../types';
 
-export type RefreshToken = {
-    id: string;
-    user_id: string;
-    token: string;
-    expires_at: Date;
-    created_at: Date;
-};
-
-export const createRefreshToken = async (userId: string, expiresInDays = 30) => {
+export const createRefreshToken = async (userId: string, expiresInDays = 30): Promise<string> => {
     const token = crypto.randomBytes(64).toString('hex');
     const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
 
@@ -23,16 +17,16 @@ export const createRefreshToken = async (userId: string, expiresInDays = 30) => 
     return token;
 };
 
-export const findRefreshToken = async (token: string) => {
+export const findRefreshToken = async (token: string): Promise<RefreshToken | null> => {
     const sql = `SELECT * FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()`;
     const result = await query(sql, [token]);
-    return result.rows[0] || null;
+    return result.rows[0] ? keysToCamel(result.rows[0]) : null;
 };
 
-export const deleteRefreshToken = async (token: string) => {
+export const deleteRefreshToken = async (token: string): Promise<void> => {
     await query(`DELETE FROM refresh_tokens WHERE token = $1`, [token]);
 };
 
-export const deleteAllUserRefreshTokens = async (userId: string) => {
+export const deleteAllUserRefreshTokens = async (userId: string): Promise<void> => {
     await query(`DELETE FROM refresh_tokens WHERE user_id = $1`, [userId]);
 };
