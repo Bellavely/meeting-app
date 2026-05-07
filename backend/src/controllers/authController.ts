@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
-import { createUser, findUserByEmail, getUserById, validatePassword } from '../models/User';
+import { createUser, findUserByEmail, validatePassword, findUserById } from '../models/User';
 import { createRefreshToken, findRefreshToken, deleteRefreshToken, updateRefreshToken } from '../models/RefreshToken';
 import { registerSchema, loginSchema } from '../validators/authValidators';
 
@@ -89,7 +89,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 export const refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { refreshToken } = req.body;
+        const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Refresh token is required' });
@@ -100,24 +100,24 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid or expired refresh token' });
         }
 
-        const tokenUser = await getUserById(storedToken.userId)
+        const tokenUser = await findUserById(storedToken.userId);
 
         if (!tokenUser) {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'User not found' });
         }
 
-        await updateRefreshToken(storedToken.id, refreshToken);
         const newRefreshToken = await createRefreshToken(tokenUser.id);
         const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
+        await updateRefreshToken(tokenUser.id, newRefreshToken);
 
         res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 30 * 24 * 60 * 60 * 1000
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 30 * 24 * 60 * 60 * 1000
         });
 
-        res.status(StatusCodes.OK).json({ accessToken        });
+        res.status(StatusCodes.OK).json({ accessToken });
     } catch (error) {
         next(error);
     }
@@ -125,12 +125,13 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { refreshToken } = req.body;
+        const refreshToken = req.cookies.refreshToken ;
 
         if (refreshToken) {
             await deleteRefreshToken(refreshToken);
         }
 
+        res.clearCookie('refreshToken');
         res.status(StatusCodes.OK).json({ message: 'Logged out successfully' });
     } catch (error) {
         next(error);

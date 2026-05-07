@@ -30,8 +30,8 @@ export const createUser = async (userData: Partial<User>): Promise<User> => {
     return keysToCamel(result.rows[0]);
 };
 
-export const getUserById = async (id: string): Promise<User | null> => {
-    const sql = `SELECT * FROM users WHERE id = $1`;
+export const findUserById = async (id: string): Promise<User | null> => {
+    const sql = `SELECT id, first_name, last_name, email, created_at FROM users WHERE id = $1`;
     const result = await query(sql, [id]);
     return result.rows[0] ? keysToCamel(result.rows[0]) : null;
 };
