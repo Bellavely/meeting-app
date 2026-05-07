@@ -2,16 +2,22 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import { createUser, findUserByEmail, validatePassword } from '../models/User';
+import { registerSchema, loginSchema } from '../validators/authValidators';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallbacksecret';
 
 export const register = async (req: Request, res: Response) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
+        const parsed = registerSchema.safeParse(req.body);
 
-        if (!firstName || !lastName || !email || !password) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'All fields are required' });
+        if (!parsed.success) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Validation failed',
+                errors: parsed.error.flatten().fieldErrors
+            });
         }
+
+        const { firstName, lastName, email, password } = parsed.data;
 
         const existingUser = await findUserByEmail(email);
         if (existingUser) {
@@ -37,11 +43,16 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const parsed = loginSchema.safeParse(req.body);
 
-        if (!email || !password) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Email and password are required' });
+        if (!parsed.success) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Validation failed',
+                errors: parsed.error.flatten().fieldErrors
+            });
         }
+
+        const { email, password } = parsed.data;
 
         const user = await findUserByEmail(email);
         if (!user || !user.password) {
@@ -53,7 +64,7 @@ export const login = async (req: Request, res: Response) => {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             { id: user.id, email: user.email },
             JWT_SECRET,
             { expiresIn: '24h' }
@@ -61,7 +72,7 @@ export const login = async (req: Request, res: Response) => {
 
         res.status(StatusCodes.OK).json({
             message: 'Login successful',
-            token,
+            accessToken,
             user: {
                 id: user.id,
                 firstName: user.first_name,
