@@ -4,6 +4,7 @@ export const toCamelCase = (str: string): string =>
         $1.toUpperCase().replace('-', '').replace('_', '')
     );
 
+    
 /**
  * Recursively converts object keys from snake_case to camelCase.
  */

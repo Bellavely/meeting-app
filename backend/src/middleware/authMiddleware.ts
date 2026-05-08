@@ -15,7 +15,7 @@ export type AuthRequest = Request & {
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Access token is missing' });
     }

@@ -4,6 +4,9 @@ CREATE TABLE IF NOT EXISTS meetings (
     description TEXT,
     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
     end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    address VARCHAR(500),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
     organizer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

@@ -4,6 +4,9 @@ export type Meeting ={
     description?: string;
     startTime: Date;
     endTime: Date;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
     organizerId: string;
     createdAt: Date;
     updatedAt: Date;

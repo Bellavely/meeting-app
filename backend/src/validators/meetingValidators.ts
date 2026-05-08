@@ -5,6 +5,9 @@ export const createMeetingSchema = z.object({
     description: z.string().max(1000, 'Description must be less than 1000 characters').optional(),
     startTime: z.string().datetime({ message: 'Invalid start time format (ISO 8601 required)' }),
     endTime: z.string().datetime({ message: 'Invalid end time format (ISO 8601 required)' }),
+    address: z.string().max(500, 'Address must be less than 500 characters').optional(),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
 }).refine((data) => new Date(data.endTime) > new Date(data.startTime), {
     message: 'End time must be after start time',
     path: ['endTime'],
@@ -15,6 +18,9 @@ export const updateMeetingSchema = z.object({
     description: z.string().max(1000).optional(),
     startTime: z.string().datetime().optional(),
     endTime: z.string().datetime().optional(),
+    address: z.string().max(500).optional(),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
 }).refine((data) => {
     if (data.startTime && data.endTime) {
         return new Date(data.endTime) > new Date(data.startTime);

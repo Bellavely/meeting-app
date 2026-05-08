@@ -3,13 +3,13 @@ import { keysToCamel } from '../utils';
 import { Meeting, CreateMeetingInput, UpdateMeetingInput } from '../types/meeting';
 
 export const createMeeting = async (input: CreateMeetingInput): Promise<Meeting> => {
-    const { title, description, startTime, endTime, organizerId } = input;
+    const { title, description, startTime, endTime, address, latitude, longitude, organizerId } = input;
     const sql = `
-        INSERT INTO meetings (title, description, start_time, end_time, organizer_id)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO meetings (title, description, start_time, end_time, address, latitude, longitude, organizer_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
     `;
-    const result = await query(sql, [title, description, startTime, endTime, organizerId]);
+    const result = await query(sql, [title, description, startTime, endTime, address, latitude, longitude, organizerId]);
     return keysToCamel(result.rows[0]);
 };
 
