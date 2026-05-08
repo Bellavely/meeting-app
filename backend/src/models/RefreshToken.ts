@@ -1,11 +1,14 @@
-import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { query } from '../config/db';
 import { keysToCamel } from '../utils';
 import { RefreshToken } from '../types';
 
+const JWT_SECRET = process.env.JWT_SECRET!;
+
 export const createRefreshToken = async (userId: string, expiresInDays = 30): Promise<string> => {
-    const token = crypto.randomBytes(64).toString('hex');
     const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+    
+    const token = jwt.sign({ id: userId, type: 'refresh' }, JWT_SECRET, { expiresIn: `${expiresInDays}d` });
 
     const sql = `
         INSERT INTO refresh_tokens (user_id, token, expires_at)

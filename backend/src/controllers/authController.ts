@@ -76,7 +76,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             accessToken,
             refreshToken,
             user: {
-                id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email
@@ -100,13 +99,20 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid or expired refresh token' });
         }
 
+        try {
+            jwt.verify(refreshToken, JWT_SECRET);
+        } catch (error) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid or expired refresh token' });
+        }
+
         const tokenUser = await findUserById(storedToken.userId);
 
         if (!tokenUser) {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'User not found' });
         }
 
-        const newRefreshToken = await createRefreshToken(tokenUser.id);
+        const newRefreshToken =  jwt.sign({ id: tokenUser.id, type: 'refresh' }, JWT_SECRET, { expiresIn: `30d` });
+        
         const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
         await updateRefreshToken(tokenUser.id, newRefreshToken);
 
