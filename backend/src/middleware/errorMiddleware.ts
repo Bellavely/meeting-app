@@ -23,7 +23,6 @@ export const errorMiddleware = (
         status: 'error',
         statusCode,
         message,
-        // Only include stack in development
         ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 };
