@@ -1,12 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as MeetingModel from '../models/Meeting';
+import { createMeetingSchema, updateMeetingSchema } from '../validators/meetingValidators';
 
 export const createMeeting = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const parsed = createMeetingSchema.safeParse(req.body);
+
+        if (!parsed.success) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Validation failed',
+                errors: parsed.error.flatten().fieldErrors
+            });
+        }
+
         const userId = (req as any).user.id;
         const meeting = await MeetingModel.createMeeting({
-            ...req.body,
+            ...parsed.data,
+            startTime: new Date(parsed.data.startTime),
+            endTime: new Date(parsed.data.endTime),
             organizerId: userId
         });
         res.status(StatusCodes.CREATED).json(meeting);
@@ -28,6 +40,15 @@ export const getMyMeetings = async (req: Request, res: Response, next: NextFunct
 export const updateMeeting = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params as { id: string };
+
+        const parsed = updateMeetingSchema.safeParse(req.body);
+        if (!parsed.success) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Validation failed',
+                errors: parsed.error.flatten().fieldErrors
+            });
+        }
+
         const userId = (req as any).user.id;
         
         const existing = await MeetingModel.getMeetingById(id);
@@ -39,7 +60,11 @@ export const updateMeeting = async (req: Request, res: Response, next: NextFunct
             return res.status(StatusCodes.FORBIDDEN).json({ message: 'Not authorized to update this meeting' });
         }
 
-        const updated = await MeetingModel.updateMeeting(id, req.body);
+        const updateData = { ...parsed.data } as any;
+        if (updateData.startTime) updateData.startTime = new Date(updateData.startTime);
+        if (updateData.endTime) updateData.endTime = new Date(updateData.endTime);
+
+        const updated = await MeetingModel.updateMeeting(id, updateData);
         res.status(StatusCodes.OK).json(updated);
     } catch (error) {
         next(error);
