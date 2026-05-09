@@ -160,7 +160,14 @@ export const refresh = async (
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(StatusCodes.OK).json({ accessToken });
+    res.status(StatusCodes.OK).json({ 
+        accessToken,
+        user: {
+            firstName: tokenUser.firstName,
+            lastName: tokenUser.lastName,
+            email: tokenUser.email,
+        }
+    });
   } catch (error) {
     next(error);
   }

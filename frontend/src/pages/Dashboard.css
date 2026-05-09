@@ -1,0 +1,115 @@
+.dashboard {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.meeting-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.meeting-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.meeting-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary);
+}
+
+/* Calendar Styles */
+.react-calendar {
+  width: 100% !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
+  color: var(--text-white) !important;
+}
+
+.react-calendar__navigation button {
+  color: var(--text-white) !important;
+  min-width: 44px;
+  background: none !important;
+  font-size: 1.1rem;
+  margin-top: 8px;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: var(--bg-dark) !important;
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.75rem;
+  color: var(--text-muted) !important;
+}
+
+.react-calendar__tile {
+  padding: 1rem !important;
+  background: none !important;
+  color: var(--text-white) !important;
+  border-radius: 8px !important;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: var(--bg-dark) !important;
+}
+
+.react-calendar__tile--now {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: var(--primary) !important;
+}
+
+.react-calendar__tile--active {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #334155 !important;
+}
+
+.map-embed {
+  width: 100%;
+  height: 250px;
+  border-radius: 12px;
+  border: none;
+  margin-top: 1rem;
+}
+
+/* Suggestions Dropdown */
+.suggestion-item:hover {
+    background-color: var(--bg-dark) !important;
+}
+
+/* Modal specific overrides if needed */
+.card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  width: 100%;
+  padding: 0.75rem;
+}

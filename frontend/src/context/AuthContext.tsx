@@ -1,5 +1,5 @@
-import  { FC, createContext, useContext, useState, useEffect } from 'react';
-import api from '../api/api';
+import { FC, createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import api, { setAccessToken } from '../api/api';
 
 interface User {
     firstName: string;
@@ -16,23 +16,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            // Optionally fetch user info here if not stored
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        const initAuth = async () => {
+            try {
+                // Try to refresh token on app load
+                const response = await api.post('/auth/refresh');
+                const { accessToken, user: userData } = response.data;
+                setAccessToken(accessToken);
+                setUser(userData);
+            } catch (err) {
+                console.log('No active session');
+            } finally {
+                setLoading(false);
+            }
+        };
+        initAuth();
     }, []);
 
-    const login = (accessToken: string, userData: User) => {
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('user', JSON.stringify(userData));
+    const login = (token: string, userData: User) => {
+        setAccessToken(token);
         setUser(userData);
     };
 
@@ -40,8 +46,7 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({ children }) =>
         try {
             await api.post('/auth/logout');
         } finally {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('user');
+            setAccessToken(null);
             setUser(null);
             window.location.href = '/login';
         }

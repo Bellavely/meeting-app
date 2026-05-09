@@ -1,7 +1,8 @@
-import  { FC ,useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
+import './Login.css';
 import { LogIn } from 'lucide-react';
 
 const Login: FC = () => {
