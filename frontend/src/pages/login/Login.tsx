@@ -1,9 +1,9 @@
 import { FormEvent, FC, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { api } from "../api/api";
-import { useAuth } from "../context/AuthContext";
 import   "./Login.css";
 import { LogIn } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { api } from "../../api/api";
 
 export const Login: FC = () => {
   const [email, setEmail] = useState("");

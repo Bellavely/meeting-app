@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import Calendar from "react-calendar";
-import { Calendar as CalendarIcon, MapPin, Plus, LogOut } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, LogOut } from "lucide-react";
 import { api } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -9,6 +9,7 @@ import "./Dashboard.css";
 import {
   ConfirmModal,
   CreateMeetingModal,
+  MeetingCard,
   MeetingDetailsModal,
 } from "../../components";
 import { Meeting } from "../../types";
@@ -170,33 +171,10 @@ export const Dashboard: FC = () => {
               </div>
             ) : (
               meetingsOnSelectedDate.map((meeting: Meeting) => (
-                <div
-                  key={meeting.id}
-                  className="meeting-card"
-                  onClick={() => setSelectedMeeting(meeting)}
-                >
-                  <div className="meeting-card-header">
-                    <div>
-                      <h3 style={{ marginBottom: "0.5rem" }}>
-                        {meeting.title}
-                      </h3>
-                      <div className="meeting-meta">
-                        <div className="meta-item">
-                          <CalendarIcon size={14} />
-                          {new Date(meeting.startTime).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </div>
-                        <div className="meta-item">
-                          <MapPin size={14} />
-                          {meeting.address || "No location"}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="view-details-tag">View Details</span>
-                  </div>
-                </div>
+                <MeetingCard
+                  meeting={meeting}
+                  setSelectedMeeting={setSelectedMeeting}
+                />
               ))
             )}
           </div>

@@ -1,13 +1,16 @@
 import { CalendarIcon, MapPin } from "lucide-react";
 import { Meeting } from "../../types";
-import "./Metting.css";
+import "./MeetingCard.css";
 
 type MeetingCardProps = {
   meeting: Meeting;
   setSelectedMeeting: (meeting: Meeting) => void;
 };
 
-export const Metting = ({ meeting, setSelectedMeeting }: MeetingCardProps) => {
+export const MeetingCard = ({
+  meeting,
+  setSelectedMeeting,
+}: MeetingCardProps) => {
   return (
     <div
       key={meeting.id}
@@ -21,6 +24,9 @@ export const Metting = ({ meeting, setSelectedMeeting }: MeetingCardProps) => {
             <div className="meta-item">
               <CalendarIcon size={14} />
               {new Date(meeting.startTime).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })} - {new Date(meeting.endTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
               })}

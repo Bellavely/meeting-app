@@ -1,4 +1,4 @@
-export * from "./meeting";
+export * from "./meetingCard";
 export * from "./confirmModal";
 export * from "./meetingModals";
 
