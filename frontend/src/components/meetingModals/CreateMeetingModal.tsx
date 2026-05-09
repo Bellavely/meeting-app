@@ -14,6 +14,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
     const [formData, setFormData] = useState({
         title: '',
         description: '',
+        date: '',
         startTime: '10:00',
         endTime: '11:00',
         address: '',
@@ -31,6 +32,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
             setFormData({
                 title: '',
                 description: '',
+                date: selectedDate.toISOString().split('T')[0],
                 startTime: '10:00',
                 endTime: '11:00',
                 address: '',
@@ -38,7 +40,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
                 longitude: ''
             });
         }
-    }, [initialData, isOpen]);
+    }, [initialData, isOpen, selectedDate]);
 
     const searchAddress = async (query: string) => {
         if (query.length < 3) {

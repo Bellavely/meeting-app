@@ -7,4 +7,5 @@ export type Meeting = {
   address?: string;
   latitude?: number;
   longitude?: number;
+  date?: string;
 };

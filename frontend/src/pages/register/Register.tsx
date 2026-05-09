@@ -10,14 +10,20 @@ export const Register: React.FC = () => {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
     try {
-      await api.post("/auth/register", form);
+      const { confirmPassword, ...registerData } = form;
+      await api.post("/auth/register", registerData);
       navigate("/login");
     } catch (err: any) {
       setError(err.response?.data?.message || "Registration failed");
@@ -63,6 +69,15 @@ export const Register: React.FC = () => {
             placeholder="Password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={form.confirmPassword}
+            onChange={(e) =>
+              setForm({ ...form, confirmPassword: e.target.value })
+            }
             required
           />
           {error && <p className="error-message">{error}</p>}
