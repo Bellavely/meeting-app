@@ -4,6 +4,11 @@
   margin: 0 auto;
 }
 
+.meeting-grid {
+  overflow-y: auto;
+  height: 40rem;
+}
+
 .header-section {
   display: flex;
   justify-content: space-between;
@@ -32,144 +37,144 @@
 
 /* Dashboard Layout */
 .header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
 .subtitle {
-    color: var(--text-muted);
+  color: var(--text-muted);
 }
 
 .header-actions {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .new-meeting-btn {
-    width: auto;
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  width: auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .logout-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    padding: 0.75rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .logout-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    gap: 2rem;
-    align-items: start;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  align-items: start;
 }
 
 .overview-card {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: var(--bg-card);
-    border-radius: 1rem;
-    border: 1px solid var(--border);
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: 1rem;
+  border: 1px solid var(--border);
 }
 
 .overview-count {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: var(--primary);
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary);
 }
 
 .main-content-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .empty-state {
-    padding: 3rem;
-    text-align: center;
-    background: var(--bg-card);
-    border-radius: 1rem;
-    border: 1px dashed var(--border);
+  padding: 3rem;
+  text-align: center;
+  background: var(--bg-card);
+  border-radius: 1rem;
+  border: 1px dashed var(--border);
 }
 
 /* Modal specific overrides */
 .form-group {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
 }
 
 .form-row {
-    display: flex;
-    gap: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .form-textarea {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-white);
-    padding: 0.75rem;
-    border-radius: 8px;
-    min-height: 100px;
-    width: 100%;
-    resize: vertical;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-white);
+  padding: 0.75rem;
+  border-radius: 8px;
+  min-height: 100px;
+  width: 100%;
+  resize: vertical;
 }
 
 .address-group {
-    position: relative;
+  position: relative;
 }
 
 .searching-indicator {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 0.75rem;
-    color: var(--primary);
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 0.75rem;
+  color: var(--primary);
 }
 
 .suggestions-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    z-index: 110;
-    border-radius: 8px;
-    margin-top: 4px;
-    max-height: 200px;
-    overflow-y: auto;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  z-index: 110;
+  border-radius: 8px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 .coord-info {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    opacity: 0.6;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  opacity: 0.6;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
 }
 
 .submit-btn {
-    margin-top: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 /* Calendar Styles */

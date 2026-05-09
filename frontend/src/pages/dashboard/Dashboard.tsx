@@ -172,6 +172,7 @@ export const Dashboard: FC = () => {
             ) : (
               meetingsOnSelectedDate.map((meeting: Meeting) => (
                 <MeetingCard
+                  key={meeting.id}
                   meeting={meeting}
                   setSelectedMeeting={setSelectedMeeting}
                 />

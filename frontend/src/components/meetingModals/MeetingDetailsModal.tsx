@@ -55,7 +55,18 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
             <X size={24} />
           </button>
         </div>
-
+        <div>
+          {" "}
+          {new Date(meeting.startTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}{" "}
+          -{" "}
+          {new Date(meeting.endTime).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </div>
         <p className="modal-description">{meeting.description}</p>
 
         <div className="location-info">
