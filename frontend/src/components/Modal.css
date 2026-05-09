@@ -1,0 +1,76 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    max-width: 600px;
+    width: 100%;
+    padding: 2.5rem !important;
+    position: relative;
+    animation: modalAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalAppear {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.close-btn {
+    background: transparent;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    padding: 0.25rem;
+}
+
+.close-btn:hover {
+    color: var(--text-white);
+}
+
+.modal-description {
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.location-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--text-white);
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}
+
+.modal-footer button {
+    flex: 1;
+}
+
+/* Shared Modal Styles */
+.details-modal { max-width: 650px; }
+.create-modal { max-width: 550px; }

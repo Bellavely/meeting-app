@@ -4,25 +4,201 @@
   margin: 0 auto;
 }
 
-.meeting-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
-.meeting-card {
-  background: var(--bg-card);
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.new-meeting-btn {
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logout-btn {
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 0.75rem;
+  border-radius: 8px;
 }
 
-.meeting-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
-  border-color: var(--primary);
+/* Dashboard Layout */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.subtitle {
+    color: var(--text-muted);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.new-meeting-btn {
+    width: auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.overview-card {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+}
+
+.overview-count {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.main-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.empty-state {
+    padding: 3rem;
+    text-align: center;
+    background: var(--bg-card);
+    border-radius: 1rem;
+    border: 1px dashed var(--border);
+}
+
+.meeting-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.meeting-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-details-tag {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* Modal specific overrides */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-textarea {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-white);
+    padding: 0.75rem;
+    border-radius: 8px;
+    min-height: 100px;
+    width: 100%;
+    resize: vertical;
+}
+
+.address-group {
+    position: relative;
+}
+
+.searching-indicator {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 0.75rem;
+    color: var(--primary);
+}
+
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    z-index: 110;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+.coord-info {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    opacity: 0.6;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.submit-btn {
+    margin-top: 1.5rem;
 }
 
 /* Calendar Styles */
@@ -90,12 +266,10 @@
   margin-top: 1rem;
 }
 
-/* Suggestions Dropdown */
 .suggestion-item:hover {
-    background-color: var(--bg-dark) !important;
+  background-color: var(--bg-dark) !important;
 }
 
-/* Modal specific overrides if needed */
 .card {
   background: var(--glass);
   backdrop-filter: blur(12px);
