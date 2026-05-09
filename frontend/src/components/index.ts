@@ -1,3 +1,4 @@
-export * from './ConfirmModal'
-export * from './CreateMeetingModal'
-export * from './MeetingDetailsModal'
+export * from "./meeting";
+export * from "./confirmModal";
+export * from "./meetingModals";
+

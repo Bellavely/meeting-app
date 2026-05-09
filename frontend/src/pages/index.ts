@@ -1,3 +1,3 @@
-export * from "./Login";
-export * from "./Register";
-export * from "./Dashboard";    
+export * from "./login";
+export * from "./dashboard";
+export * from "./register";

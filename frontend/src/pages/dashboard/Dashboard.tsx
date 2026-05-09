@@ -1,23 +1,17 @@
-import  { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import { Calendar as CalendarIcon, MapPin, Plus, LogOut } from "lucide-react";
-import { api } from "../api/api";
-import { useAuth } from "../context/AuthContext";
+import { api } from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 
 import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
-import { ConfirmModal, CreateMeetingModal, MeetingDetailsModal } from "../components";
-
-interface Meeting {
-  id: string;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-}
+import {
+  ConfirmModal,
+  CreateMeetingModal,
+  MeetingDetailsModal,
+} from "../../components";
+import { Meeting } from "../../types";
 
 export const Dashboard: FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -44,7 +38,7 @@ export const Dashboard: FC = () => {
     fetchMeetings();
   }, []);
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: Meeting) => {
     try {
       const start = new Date(date);
       const [sH, sM] = formData.startTime.split(":");
@@ -58,8 +52,12 @@ export const Dashboard: FC = () => {
         ...formData,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
-        latitude: formData.latitude ? parseFloat(String(formData.latitude)) : undefined,
-        longitude: formData.longitude ? parseFloat(String(formData.longitude)) : undefined,
+        latitude: formData.latitude
+          ? parseFloat(String(formData.latitude))
+          : undefined,
+        longitude: formData.longitude
+          ? parseFloat(String(formData.longitude))
+          : undefined,
       };
 
       if (editingMeetingId) {
@@ -104,7 +102,7 @@ export const Dashboard: FC = () => {
     setEditingMeetingId(meeting.id);
     setShowCreateModal(true);
     setSelectedMeeting(null);
-    return editData; 
+    return editData;
   };
 
   const meetingsOnSelectedDate = meetings.filter((m: Meeting) => {
@@ -122,7 +120,13 @@ export const Dashboard: FC = () => {
           <p className="subtitle">Manage your schedule and locations</p>
         </div>
         <div className="header-actions">
-          <button onClick={() => { setEditingMeetingId(null); setShowCreateModal(true); }} className="btn-primary new-meeting-btn">
+          <button
+            onClick={() => {
+              setEditingMeetingId(null);
+              setShowCreateModal(true);
+            }}
+            className="btn-primary new-meeting-btn"
+          >
             <Plus size={18} /> New Meeting
           </button>
           <button onClick={logout} className="logout-btn">
@@ -133,7 +137,11 @@ export const Dashboard: FC = () => {
 
       <div className="dashboard-grid">
         <aside>
-          <Calendar onChange={(val: any) => setDate(val as Date)} value={date} className="custom-calendar" />
+          <Calendar
+            onChange={(val: any) => setDate(val as Date)}
+            value={date}
+            className="custom-calendar"
+          />
           <div className="overview-card">
             <h3>Today's Overview</h3>
             <p className="overview-count">{meetingsOnSelectedDate.length}</p>
@@ -143,24 +151,42 @@ export const Dashboard: FC = () => {
 
         <main>
           <div className="main-content-header">
-            <h2>{date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</h2>
+            <h2>
+              {date.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </h2>
           </div>
 
-          <div className="meeting-grid" style={{ gridTemplateColumns: "1fr", marginTop: 0 }}>
+          <div
+            className="meeting-grid"
+            style={{ gridTemplateColumns: "1fr", marginTop: 0 }}
+          >
             {meetingsOnSelectedDate.length === 0 ? (
               <div className="empty-state">
                 <p className="subtitle">No meetings for this day.</p>
               </div>
             ) : (
               meetingsOnSelectedDate.map((meeting: Meeting) => (
-                <div key={meeting.id} className="meeting-card" onClick={() => setSelectedMeeting(meeting)}>
+                <div
+                  key={meeting.id}
+                  className="meeting-card"
+                  onClick={() => setSelectedMeeting(meeting)}
+                >
                   <div className="meeting-card-header">
                     <div>
-                      <h3 style={{ marginBottom: "0.5rem" }}>{meeting.title}</h3>
+                      <h3 style={{ marginBottom: "0.5rem" }}>
+                        {meeting.title}
+                      </h3>
                       <div className="meeting-meta">
                         <div className="meta-item">
                           <CalendarIcon size={14} />
-                          {new Date(meeting.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(meeting.startTime).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </div>
                         <div className="meta-item">
                           <MapPin size={14} />
@@ -177,36 +203,45 @@ export const Dashboard: FC = () => {
         </main>
       </div>
 
-      <CreateMeetingModal 
-        isOpen={showCreateModal} 
+      <CreateMeetingModal
+        isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleFormSubmit}
         selectedDate={date}
-        initialData={editingMeetingId ? (() => {
-            const m = meetings.find(meeting => meeting.id === editingMeetingId);
-            if (!m) return null;
-            const start = new Date(m.startTime);
-            const end = new Date(m.endTime);
-            return {
-                title: m.title,
-                description: m.description,
-                startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
-                endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
-                address: m.address || "",
-                latitude: m.latitude?.toString() || "",
-                longitude: m.longitude?.toString() || "",
-            };
-        })() : null}
+        initialData={
+          editingMeetingId
+            ? (() => {
+                const m = meetings.find(
+                  (meeting) => meeting.id === editingMeetingId,
+                );
+                if (!m) return null;
+                const start = new Date(m.startTime);
+                const end = new Date(m.endTime);
+                return {
+                  title: m.title,
+                  description: m.description,
+                  startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
+                  endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
+                  address: m.address || "",
+                  latitude: m.latitude?.toString() || "",
+                  longitude: m.longitude?.toString() || "",
+                };
+              })()
+            : null
+        }
       />
 
-      <MeetingDetailsModal 
+      <MeetingDetailsModal
         meeting={selectedMeeting}
         onClose={() => setSelectedMeeting(null)}
         onEdit={startEditing}
-        onDelete={(id) => { setIsDeleting(id); setSelectedMeeting(null); }}
+        onDelete={(id) => {
+          setIsDeleting(id);
+          setSelectedMeeting(null);
+        }}
       />
 
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={!!isDeleting}
         title="Delete Meeting"
         message="Are you sure you want to delete this meeting? This action cannot be undone."

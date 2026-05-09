@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { api } from "../api/api";
+import { api } from "../../api/api";
 import "./Register.css";
 import { UserPlus } from "lucide-react";
 
