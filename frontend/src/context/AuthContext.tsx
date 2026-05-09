@@ -7,12 +7,7 @@ import {
   ReactNode,
 } from "react";
 import { setAccessToken, api } from "../api/api";
-
-type User = {
-  firstName: string;
-  lastName: string;
-  email: string;
-};
+import { User } from "../types/user";
 
 type AuthContextType = {
   user: User | null;
