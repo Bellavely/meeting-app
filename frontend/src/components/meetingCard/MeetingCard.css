@@ -1,7 +1,7 @@
 .meeting-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: center;
 }
 
 .meeting-card {
