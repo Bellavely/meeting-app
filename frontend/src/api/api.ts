@@ -7,7 +7,7 @@ export const setAccessToken = (token: string | null) => {
   accessToken = token;
 };
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: `${serverUrl}/api`,
   withCredentials: true,
 });
@@ -55,5 +55,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
-export default api;
