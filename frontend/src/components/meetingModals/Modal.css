@@ -61,6 +61,10 @@
     color: var(--text-white);
 }
 
+.location-info svg {
+    flex-shrink: 0;
+}
+
 .modal-footer {
     display: flex;
     gap: 1rem;
