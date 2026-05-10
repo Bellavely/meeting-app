@@ -13,6 +13,7 @@ import {
   MeetingDetailsModal,
 } from "../../components";
 import { Meeting } from "../../types";
+import { toast } from "sonner";
 
 export const Dashboard: FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -69,15 +70,19 @@ export const Dashboard: FC = () => {
 
       if (editingMeetingId) {
         await api.put(`/meetings/${editingMeetingId}`, payload);
+        toast.success("Meeting updated");
       } else {
         await api.post("/meetings", payload);
+        toast.success("Meeting created");
       }
 
       setShowCreateModal(false);
       setEditingMeetingId(null);
       fetchMeetings();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Failed to save meeting");
+      toast.error(
+        `failed to save meeting + ${error.response?.data?.message || ""}`,
+      );
     }
   };
 
@@ -88,8 +93,10 @@ export const Dashboard: FC = () => {
       setIsDeleting(null);
       setSelectedMeeting(null);
       fetchMeetings();
+      toast.success("Meeting deleted");
     } catch (error) {
       console.error("Delete failed", error);
+      toast.error("Failed to delete meeting");
     }
   };
 

@@ -8,6 +8,7 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./index.css";
 import { Dashboard, Login, Register } from "./pages";
+import { Toaster } from "sonner";
 
 const PrivateRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -24,6 +25,7 @@ const GuestRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
 const App: FC = () => {
   return (
     <AuthProvider>
+      <Toaster position="bottom-right" richColors />
       <Router>
         <Routes>
           <Route

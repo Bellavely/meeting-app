@@ -37,3 +37,6 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
 export const validatePassword = async (password: string, hash: string): Promise<boolean> => {
     return bcrypt.compare(password, hash);
 };
+
+//create an update user 
+// export const updateUser = async (id: string, userData: Partial<User>): Promise<User> => {}
