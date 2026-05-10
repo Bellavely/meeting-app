@@ -84,9 +84,9 @@ export const refresh = async (
         .json({ message: "Refresh token is required" });
     }
 
-    const result = await authService.refreshUserToken(refreshToken);
+    const {refreshToken:newRefreshToken,accessToken,user} = await authService.refreshUserToken(refreshToken);
 
-    res.cookie("refreshToken", result.refreshToken, {
+    res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -94,8 +94,8 @@ export const refresh = async (
     });
 
     res.status(StatusCodes.OK).json({ 
-        accessToken: result.accessToken,
-        user: result.user
+        accessToken: accessToken,
+        user: user
     });
   } catch (error: any) {
     if (error.status) {
@@ -112,7 +112,7 @@ export const logout = async (
 ) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-
+    await authService.logout(refreshToken);
     res.clearCookie("refreshToken");
     res.status(StatusCodes.OK).json({ message: "Logged out successfully" });
   } catch (error) {

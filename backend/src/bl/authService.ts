@@ -6,11 +6,13 @@ import {
 } from "../dal/models/User";
 import { 
     createRefreshToken, 
+    deleteRefreshToken, 
     findRefreshToken, 
     updateRefreshToken 
 } from "../dal/models/RefreshToken";
 import { generateAccessToken, generateRefreshToken, JWT_SECRET } from "../utils";
 import jwt from "jsonwebtoken";
+import { refresh } from "../api/controllers";
 
 export const registerUser = async (userData: any) => {
     const existingUser = await findUserByEmail(userData.email);
@@ -65,7 +67,7 @@ export const refreshUserToken = async (refreshToken: string) => {
 
     const newRefreshToken = generateRefreshToken(tokenUser.id);
     const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
-    await updateRefreshToken(tokenUser.id, newRefreshToken);
+    await updateRefreshToken(tokenUser.id, refreshToken, newRefreshToken);
 
     return {
         accessToken,
@@ -78,21 +80,6 @@ export const refreshUserToken = async (refreshToken: string) => {
     };
 };
 
-export const deleteUserRefreshToken = async (refreshToken: string) => {
-    const storedToken = await findRefreshToken(refreshToken);
-    if (!storedToken) {
-        throw { status: 401, message: "Invalid or expired refresh token" };
-    }
-
-    try {
-        jwt.verify(refreshToken, JWT_SECRET);
-    } catch (error) {
-        throw { status: 401, message: "Invalid or expired refresh token" };
-    }
-
-    const tokenUser = await findUserById(storedToken.userId);
-    if (!tokenUser) {
-        throw { status: 401, message: "User not found" };
-    }
-
-};
+export const logout = async(refreshUserToken:string) =>{
+    await deleteRefreshToken(refreshUserToken)
+}

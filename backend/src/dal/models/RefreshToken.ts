@@ -8,8 +8,10 @@ export const createRefreshToken = async (
   userId: string,
   expiresInDays = 30,
 ): Promise<string> => {
-  const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+  // Purge any existing tokens for this user first
+  await deleteAllUserRefreshTokens(userId);
 
+  const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
   const token = generateRefreshToken(userId, expiresInDays);
 
   const sql = `
@@ -22,13 +24,13 @@ export const createRefreshToken = async (
   return token;
 };
 
-export const updateRefreshToken = async (userId: string, token: string) => {
+export const updateRefreshToken = async (userId: string, oldToken: string, newToken: string) => {
   const sql = `
-        UPDATE refresh_tokens SET token = $1 WHERE user_id = $2
+        UPDATE refresh_tokens SET token = $1 WHERE user_id = $2 AND token = $3
         RETURNING token
     `;
 
-  await query(sql, [token, userId]);
+  await query(sql, [newToken, userId, oldToken]);
 };
 
 export const findRefreshToken = async (
