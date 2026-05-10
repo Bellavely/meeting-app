@@ -1,6 +1,6 @@
-import { query } from '../config/db';
-import { keysToCamel } from '../utils';
-import { Meeting, CreateMeetingInput, UpdateMeetingInput } from '../types/meeting';
+import { query } from '../../config/db';
+import { keysToCamel } from '../../utils';
+import { Meeting, CreateMeetingInput, UpdateMeetingInput } from '../../types/meeting';
 
 export const createMeeting = async (input: CreateMeetingInput): Promise<Meeting> => {
     const { title, description, startTime, endTime, address, latitude, longitude, organizerId } = input;

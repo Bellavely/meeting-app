@@ -1,6 +1,6 @@
-import { query } from "../config/db";
-import { generateRefreshToken, keysToCamel } from "../utils";
-import { RefreshToken } from "../types";
+import { query } from "../../config/db";
+import { generateRefreshToken, keysToCamel } from "../../utils";
+import { RefreshToken } from "../../types";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 

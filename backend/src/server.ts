@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { routes } from './routes';
 import { pool } from './config/db';
 import { errorMiddleware } from './middleware/errorMiddleware';
-import { runMigrations } from './db/init-db';
+import { runMigrations } from './dal/db/init-db';
 
 dotenv.config();
 

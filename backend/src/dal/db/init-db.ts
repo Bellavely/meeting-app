@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { pool } from '../config/db';
+import { pool } from '../../config/db';
 
 async function runMigrations() {
     const migrationsDir = path.join(__dirname, 'migrations');

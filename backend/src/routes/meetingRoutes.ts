@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {createMeeting,getMyMeetings,updateMeeting,deleteMeeting} from '../controllers/meetingController';
+import {createMeeting,getMyMeetings,updateMeeting,deleteMeeting} from '../api/controllers/meetingController';
 import { authMiddleware } from '../middleware/authMiddleware';
 
 export const meetingRouter = Router();

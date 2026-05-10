@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
-import { query } from '../config/db';
-import { keysToCamel } from '../utils';
-import { User } from '../types';
+import { query } from '../../config/db';
+import { keysToCamel } from '../../utils';
+import { User } from '../../types';
 
 export const createUser = async (userData: Partial<User>): Promise<User> => {
     const { firstName, lastName, email, password } = userData;
