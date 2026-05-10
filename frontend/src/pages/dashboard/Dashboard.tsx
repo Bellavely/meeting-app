@@ -22,7 +22,16 @@ export const Dashboard: FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [editingData, setEditingData] = useState(null)
+  const [editingData, setEditingData] = useState({
+    title: "",
+    description: "",
+    date: "",
+    startTime: "00:00",
+    endTime: "00:00",
+    address: "",
+    latitude: "",
+    longitude: "",
+  });
 
   const fetchMeetings = async () => {
     try {
@@ -99,8 +108,30 @@ export const Dashboard: FC = () => {
     }
   };
 
-  const startEditing = (meeting: Meeting) => {
-    setEditingMeetingId(meeting.id);
+  const startEditing = ({
+    id,
+    address,
+    latitude,
+    longitude,
+    title,
+    description,
+    endTime,
+    startTime,
+  }: Meeting) => {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    setEditingData({
+      title: title,
+      description: description,
+      startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
+      endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
+      date: start.toISOString().split("T")[0],
+      address: address || "",
+      latitude: latitude?.toString() || "",
+      longitude: longitude?.toString() || "",
+    });
+
+    setEditingMeetingId(id);
     setShowCreateModal(true);
     setSelectedMeeting(null);
   };
@@ -114,7 +145,7 @@ export const Dashboard: FC = () => {
 
   return (
     <div className="dashboard-layout">
-      <Sidebar/>
+      <Sidebar />
       <div className="dashboard-content">
         <header className="header-section">
           <div>
@@ -134,19 +165,19 @@ export const Dashboard: FC = () => {
           </div>
         </header>
 
-      <div className="dashboard-grid">
-        <aside>
-          <Calendar
-            onChange={(val: any) => setDate(val as Date)}
-            value={date}
-            className="custom-calendar"
-          />
-          <div className="overview-card">
-            <h3>Today's Overview</h3>
-            <p className="overview-count">{meetingsOnSelectedDate.length}</p>
-            <p className="subtitle">Meetings scheduled</p>
-          </div>
-        </aside>
+        <div className="dashboard-grid">
+          <aside>
+            <Calendar
+              onChange={(val: any) => setDate(val as Date)}
+              value={date}
+              className="custom-calendar"
+            />
+            <div className="overview-card">
+              <h3>Today's Overview</h3>
+              <p className="overview-count">{meetingsOnSelectedDate.length}</p>
+              <p className="subtitle">Meetings scheduled</p>
+            </div>
+          </aside>
 
           <main>
             <div className="main-content-header">
@@ -178,55 +209,34 @@ export const Dashboard: FC = () => {
               )}
             </div>
           </main>
+        </div>
+
+        <CreateMeetingModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleFormSubmit}
+          selectedDate={date}
+          initialData={editingData}
+        />
+
+        <MeetingDetailsModal
+          meeting={selectedMeeting}
+          onClose={() => setSelectedMeeting(null)}
+          onEdit={startEditing}
+          onDelete={(id) => {
+            setIsDeleting(id);
+            setSelectedMeeting(null);
+          }}
+        />
+
+        <ConfirmModal
+          isOpen={!!isDeleting}
+          title="Delete Meeting"
+          message="Are you sure you want to delete this meeting? This action cannot be undone."
+          onConfirm={confirmDelete}
+          onCancel={() => setIsDeleting(null)}
+        />
       </div>
-
-      <CreateMeetingModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleFormSubmit}
-        selectedDate={date}
-        initialData={
-          editingMeetingId
-            ? (() => {
-                const meeting = meetings.find(
-                  (meeting) => meeting.id === editingMeetingId,
-                );
-                if (!meeting) return null;
-                const start = new Date(meeting.startTime);
-                const end = new Date(meeting.endTime);
-                return {
-                  title: meeting.title,
-                  description: meeting.description,
-                  startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
-                  endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
-                  date: start.toISOString().split("T")[0],
-                  address: meeting.address || "",
-                  latitude: meeting.latitude?.toString() || "",
-                  longitude: meeting.longitude?.toString() || "",
-                };
-              })()
-            : null
-        }
-      />
-
-      <MeetingDetailsModal
-        meeting={selectedMeeting}
-        onClose={() => setSelectedMeeting(null)}
-        onEdit={startEditing}
-        onDelete={(id) => {
-          setIsDeleting(id);
-          setSelectedMeeting(null);
-        }}
-      />
-
-      <ConfirmModal
-        isOpen={!!isDeleting}
-        title="Delete Meeting"
-        message="Are you sure you want to delete this meeting? This action cannot be undone."
-        onConfirm={confirmDelete}
-        onCancel={() => setIsDeleting(null)}
-      />
-    </div>
     </div>
   );
 };
