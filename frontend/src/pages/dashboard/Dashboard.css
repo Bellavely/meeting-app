@@ -1,12 +1,31 @@
-.dashboard {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  flex-grow: 1;
+  margin-left: 320px;
+  padding: 2.5rem;
+  width: 100%;
+}
+
+.dashboard-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.dashboard-aside {
+  position: sticky;
+  top: 2.5rem;
 }
 
 .meeting-grid {
   overflow-y: auto;
-  height: 40rem;
+  height: calc(100vh - 200px);
+  padding-right: 1rem;
 }
 
 .header-section {
@@ -58,19 +77,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.logout-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  padding: 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .dashboard-grid {

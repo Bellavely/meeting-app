@@ -1,9 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import Calendar from "react-calendar";
-import { Calendar as CalendarIcon, Plus, LogOut } from "lucide-react";
+import { Plus } from "lucide-react";
 import { api } from "../../api/api";
-import { useAuth } from "../../context/AuthContext";
-
 import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
 import {
@@ -11,6 +9,7 @@ import {
   CreateMeetingModal,
   MeetingCard,
   MeetingDetailsModal,
+  Sidebar,
 } from "../../components";
 import { Meeting } from "../../types";
 import { toast } from "sonner";
@@ -18,12 +17,12 @@ import { toast } from "sonner";
 export const Dashboard: FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user, logout } = useAuth();
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState(null)
 
   const fetchMeetings = async () => {
     try {
@@ -101,22 +100,9 @@ export const Dashboard: FC = () => {
   };
 
   const startEditing = (meeting: Meeting) => {
-    const start = new Date(meeting.startTime);
-    const end = new Date(meeting.endTime);
-
-    const editData = {
-      title: meeting.title,
-      description: meeting.description,
-      startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
-      endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
-      address: meeting.address || "",
-      latitude: meeting.latitude?.toString() || "",
-      longitude: meeting.longitude?.toString() || "",
-    };
     setEditingMeetingId(meeting.id);
     setShowCreateModal(true);
     setSelectedMeeting(null);
-    return editData;
   };
 
   const meetingsOnSelectedDate = meetings.filter((m: Meeting) => {
@@ -127,27 +113,26 @@ export const Dashboard: FC = () => {
   if (loading) return <div className="auth-container">Loading...</div>;
 
   return (
-    <div className="dashboard">
-      <header className="header-section">
-        <div>
-          <h1>Hi, {user?.firstName}!</h1>
-          <p className="subtitle">Manage your schedule and locations</p>
-        </div>
-        <div className="header-actions">
-          <button
-            onClick={() => {
-              setEditingMeetingId(null);
-              setShowCreateModal(true);
-            }}
-            className="btn-primary new-meeting-btn"
-          >
-            <Plus size={18} /> New Meeting
-          </button>
-          <button onClick={logout} className="logout-btn">
-            <LogOut size={18} color="var(--text-muted)" />
-          </button>
-        </div>
-      </header>
+    <div className="dashboard-layout">
+      <Sidebar/>
+      <div className="dashboard-content">
+        <header className="header-section">
+          <div>
+            <h1>Dashboard</h1>
+            <p className="subtitle">Manage your schedule and locations</p>
+          </div>
+          <div className="header-actions">
+            <button
+              onClick={() => {
+                setEditingMeetingId(null);
+                setShowCreateModal(true);
+              }}
+              className="btn-primary new-meeting-btn"
+            >
+              <Plus size={18} /> New Meeting
+            </button>
+          </div>
+        </header>
 
       <div className="dashboard-grid">
         <aside>
@@ -163,36 +148,36 @@ export const Dashboard: FC = () => {
           </div>
         </aside>
 
-        <main>
-          <div className="main-content-header">
-            <h2>
-              {date.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </h2>
-          </div>
+          <main>
+            <div className="main-content-header">
+              <h2>
+                {date.toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </h2>
+            </div>
 
-          <div
-            className="meeting-grid"
-            style={{ gridTemplateColumns: "1fr", marginTop: 0 }}
-          >
-            {meetingsOnSelectedDate.length === 0 ? (
-              <div className="empty-state">
-                <p className="subtitle">No meetings for this day.</p>
-              </div>
-            ) : (
-              meetingsOnSelectedDate.map((meeting: Meeting) => (
-                <MeetingCard
-                  key={meeting.id}
-                  meeting={meeting}
-                  setSelectedMeeting={setSelectedMeeting}
-                />
-              ))
-            )}
-          </div>
-        </main>
+            <div
+              className="meeting-grid"
+              style={{ gridTemplateColumns: "1fr", marginTop: 0 }}
+            >
+              {meetingsOnSelectedDate.length === 0 ? (
+                <div className="empty-state">
+                  <p className="subtitle">No meetings for this day.</p>
+                </div>
+              ) : (
+                meetingsOnSelectedDate.map((meeting: Meeting) => (
+                  <MeetingCard
+                    key={meeting.id}
+                    meeting={meeting}
+                    setSelectedMeeting={setSelectedMeeting}
+                  />
+                ))
+              )}
+            </div>
+          </main>
       </div>
 
       <CreateMeetingModal
@@ -203,21 +188,21 @@ export const Dashboard: FC = () => {
         initialData={
           editingMeetingId
             ? (() => {
-                const m = meetings.find(
+                const meeting = meetings.find(
                   (meeting) => meeting.id === editingMeetingId,
                 );
-                if (!m) return null;
-                const start = new Date(m.startTime);
-                const end = new Date(m.endTime);
+                if (!meeting) return null;
+                const start = new Date(meeting.startTime);
+                const end = new Date(meeting.endTime);
                 return {
-                  title: m.title,
-                  description: m.description,
+                  title: meeting.title,
+                  description: meeting.description,
                   startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
                   endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
                   date: start.toISOString().split("T")[0],
-                  address: m.address || "",
-                  latitude: m.latitude?.toString() || "",
-                  longitude: m.longitude?.toString() || "",
+                  address: meeting.address || "",
+                  latitude: meeting.latitude?.toString() || "",
+                  longitude: meeting.longitude?.toString() || "",
                 };
               })()
             : null
@@ -241,6 +226,7 @@ export const Dashboard: FC = () => {
         onConfirm={confirmDelete}
         onCancel={() => setIsDeleting(null)}
       />
+    </div>
     </div>
   );
 };
