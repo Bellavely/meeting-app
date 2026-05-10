@@ -9,16 +9,16 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const parsed = registerSchema.safeParse(req.body);
+    const { success, data, error } = registerSchema.safeParse(req.body);
 
-    if (!parsed.success) {
+    if (!success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: "Validation failed",
-        errors: parsed.error.flatten().fieldErrors,
+        errors: error.flatten().fieldErrors,
       });
     }
 
-    const user = await authService.registerUser(parsed.data);
+    const user = await authService.registerUser(data);
 
     res.status(StatusCodes.CREATED).json({
       message: "User registered successfully",
@@ -26,7 +26,7 @@ export const register = async (
     });
   } catch (error: any) {
     if (error.status) {
-        return res.status(error.status).json({ message: error.message });
+      return res.status(error.status).json({ message: error.message });
     }
     next(error);
   }
@@ -38,16 +38,16 @@ export const login = async (
   next: NextFunction,
 ) => {
   try {
-    const parsed = loginSchema.safeParse(req.body);
+    const { success, error, data } = loginSchema.safeParse(req.body);
 
-    if (!parsed.success) {
+    if (!success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: "Validation failed",
-        errors: parsed.error.flatten().fieldErrors,
+        errors: error.flatten().fieldErrors,
       });
     }
 
-    const { email, password } = parsed.data;
+    const { email, password } = data;
     const result = await authService.loginUser(email, password);
 
     res.cookie("refreshToken", result.refreshToken, {
@@ -60,11 +60,11 @@ export const login = async (
     res.status(StatusCodes.OK).json({
       message: "Login successful",
       accessToken: result.accessToken,
-      user: result.user
+      user: result.user,
     });
   } catch (error: any) {
     if (error.status) {
-        return res.status(error.status).json({ message: error.message });
+      return res.status(error.status).json({ message: error.message });
     }
     next(error);
   }
@@ -84,7 +84,11 @@ export const refresh = async (
         .json({ message: "Refresh token is required" });
     }
 
-    const {refreshToken:newRefreshToken,accessToken,user} = await authService.refreshUserToken(refreshToken);
+    const {
+      refreshToken: newRefreshToken,
+      accessToken,
+      user,
+    } = await authService.refreshUserToken(refreshToken);
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
@@ -93,13 +97,13 @@ export const refresh = async (
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(StatusCodes.OK).json({ 
-        accessToken: accessToken,
-        user: user
+    res.status(StatusCodes.OK).json({
+      accessToken: accessToken,
+      user: user,
     });
   } catch (error: any) {
     if (error.status) {
-        return res.status(error.status).json({ message: error.message });
+      return res.status(error.status).json({ message: error.message });
     }
     next(error);
   }
@@ -112,6 +116,7 @@ export const logout = async (
 ) => {
   try {
     const refreshToken = req.cookies.refreshToken;
+
     await authService.logout(refreshToken);
     res.clearCookie("refreshToken");
     res.status(StatusCodes.OK).json({ message: "Logged out successfully" });

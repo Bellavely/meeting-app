@@ -12,7 +12,6 @@ import {
 } from "../dal/models/RefreshToken";
 import { generateAccessToken, generateRefreshToken, JWT_SECRET } from "../utils";
 import jwt from "jsonwebtoken";
-import { refresh } from "../api/controllers";
 
 export const registerUser = async (userData: any) => {
     const existingUser = await findUserByEmail(userData.email);
