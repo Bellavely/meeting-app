@@ -15,13 +15,33 @@ const PrivateRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
+const GuestRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return !user ? <>{children}</> : <Navigate to="/" />;
+};
+
 const App: FC = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <Login />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <Register />
+              </GuestRoute>
+            }
+          />
           <Route
             path="/"
             element={
