@@ -41,16 +41,22 @@ export const Dashboard: FC = () => {
 
   const handleFormSubmit = async (formData: Meeting) => {
     try {
-      const start = new Date(date);
+      const baseDate = new Date(date);
+      if (formData.date) {
+        const [yyyy, mm, dd] = formData.date.split("-").map(Number);
+        baseDate.setFullYear(yyyy, mm - 1, dd);
+      }
+      const start = new Date(baseDate);
       const [sH, sM] = formData.startTime.split(":");
-      start.setHours(parseInt(sH), parseInt(sM));
+      start.setHours(parseInt(sH), parseInt(sM), 0, 0);
 
-      const end = new Date(date);
+      const end = new Date(baseDate);
       const [eH, eM] = formData.endTime.split(":");
-      end.setHours(parseInt(eH), parseInt(eM));
+      end.setHours(parseInt(eH), parseInt(eM), 0, 0);
 
+      const { date: _, ...rest } = formData;
       const payload = {
-        ...formData,
+        ...rest,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
         latitude: formData.latitude
@@ -201,6 +207,7 @@ export const Dashboard: FC = () => {
                   description: m.description,
                   startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
                   endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
+                  date: start.toISOString().split("T")[0],
                   address: m.address || "",
                   latitude: m.latitude?.toString() || "",
                   longitude: m.longitude?.toString() || "",

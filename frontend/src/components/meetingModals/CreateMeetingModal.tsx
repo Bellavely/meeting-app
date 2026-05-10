@@ -15,8 +15,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
         title: '',
         description: '',
         date: '',
-        startTime: '10:00',
-        endTime: '11:00',
+        startTime: '00:00',
+        endTime: '00:00',
         address: '',
         latitude: '',
         longitude: ''
@@ -24,6 +24,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
 
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [isInternalUpdate, setIsInternalUpdate] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -33,8 +34,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
                 title: '',
                 description: '',
                 date: selectedDate.toISOString().split('T')[0],
-                startTime: '10:00',
-                endTime: '11:00',
+                startTime: '00:00',
+                endTime: '00:00',
                 address: '',
                 latitude: '',
                 longitude: ''
@@ -60,6 +61,11 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
     };
 
     useEffect(() => {
+        if (isInternalUpdate) {
+            setIsInternalUpdate(false);
+            return;
+        }
+
         const timer = setTimeout(() => {
             if (formData.address && isOpen) {
                 const alreadySelected = suggestions.some(s => s.display_name === formData.address);
@@ -109,6 +115,15 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
 
                     <div className="form-row">
                         <div className="form-group">
+                            <label>Date</label>
+                            <input 
+                                type="date" 
+                                value={formData.date} 
+                                onChange={e => setFormData({...formData, date: e.target.value})} 
+                                required 
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Start Time</label>
                             <input 
                                 type="time" 
@@ -144,6 +159,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({ isOpen, onClos
                                         key={i} 
                                         className="suggestion-item"
                                         onClick={() => {
+                                            setIsInternalUpdate(true);
                                             setFormData({
                                                 ...formData, 
                                                 address: s.display_name,
