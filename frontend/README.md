@@ -1,50 +1,28 @@
-# React + TypeScript + Vite
+Meeting Scheduler
+A full-stack web application designed to manage meetings efficiently. This project features a React frontend and a Node.js backend, allowing users to handle meeting schedules with integrated Google Maps location tracking.🚀 FeaturesFull CRUD Operations: Create, read, update, and delete meetings seamlessly.Interactive UI: A modern React interface for managing your schedule.Map Integration: View the specific location of any meeting via Google Maps based on the provided address.Data Persistence: Robust storage using a SQL database.Validation: Basic input validation to ensure data integrity.🛠️ Tech StackFrontendReact: Functional components and Hooks for state management.CSS/SCSS: Styled components or modules for a clean layout.Google Maps SDK: For dynamic location rendering.BackendNode.js & Express: RESTful API architecture.SQL (PostgreSQL/MySQL): Relational database for structured meeting data.Cors & Dotenv: For environment management and cross-origin security.📋 Database SchemaThe meetings table includes the following structure:FieldTypeDescriptionidPrimary KeyUnique identifiertitleStringThe name/subject of the meetingdateDateScheduled datetimeTimeScheduled timeaddressStringPhysical location (for Maps)notesTextAdditional meeting details⚙️ Getting StartedPrerequisitesNode.js (v14+ recommended)SQL Database instanceGoogle Maps API KeyInstallationClone the repository:Bashgit clone https://github.com/your-username/meeting-scheduler.git
+cd meeting-scheduler
+Backend Setup:Bash    cd backend
+    npm install
+    # Create a .env file with your DB_URL and PORT
+    npm start
+    ```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+3.  **Frontend Setup:**
+    
+```bash
+    cd frontend
+    npm install
+    # Add your Google Maps API key to your environment variables
+    npm start
+    ```
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ API Endpoints
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+| Method | Endpoint          | Description              |
+| :---   | :---              | :---                     |
+| `GET`  | `/api/meetings`   | Fetch all meetings       |
+| `POST` | `/api/meetings`   | Create a new meeting     |
+| `PUT`  | `/api/meetings/:id`| Update an existing meeting|
+| `DELETE`| `/api/meetings/:id`| Remove a meeting         |
