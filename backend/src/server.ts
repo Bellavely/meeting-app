@@ -11,12 +11,14 @@ import { runMigrations } from "./dal/db/init-db";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT ;
+const port = process.env.PORT;
 const allowdOrigins = process.env.CLIENT;
 app.use(
   cors({
     origin: allowdOrigins,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(express.json());
@@ -36,7 +38,7 @@ app.get("/health", async (_req, res) => {
   }
 });
 
-app.listen(Number(port), process.env.HOST! ,async () => {
+app.listen(Number(port), process.env.HOST!, async () => {
   console.log(`Server running on port ${port}`);
   try {
     await runMigrations();
