@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./index.css";
-import { Dashboard, Login, Register } from "./pages";
+import { Dashboard, Login, Register, Profile } from "./pages";
 import { Toaster } from "sonner";
 
 const PrivateRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -31,17 +31,21 @@ const App: FC = () => {
           <Route
             path="/login"
             element={
-              <GuestRoute>
                 <Login />
-              </GuestRoute>
             }
           />
           <Route
             path="/register"
             element={
-              <GuestRoute>
                 <Register />
-              </GuestRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
             }
           />
           <Route

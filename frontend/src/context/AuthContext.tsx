@@ -13,6 +13,7 @@ type AuthContextType = {
   user: User | null;
   login: (accessToken: string, user: User) => void;
   logout: () => void;
+  updateUserData: (user: User) => void;
   loading: boolean;
 };
 
@@ -54,8 +55,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
+  const updateUserData = (userData: User) => {
+    setUser(userData);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUserData, loading }}>
       {children}
     </AuthContext.Provider>
   );
