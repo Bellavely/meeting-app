@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as authService from "../../bl/authService";
-import { registerSchema, loginSchema } from "../../validators/authValidators";
+import {
+  registerSchema,
+  loginSchema,
+  updateUserInfo,
+} from "../../validators/authValidators";
 
 export const register = async (
   req: Request,
@@ -121,6 +125,38 @@ export const logout = async (
     res.clearCookie("refreshToken");
     res.status(StatusCodes.OK).json({ message: "Logged out successfully" });
   } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { success, error, data } = updateUserInfo.safeParse(req.body);
+
+    if (!success) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Validation failed",
+        errors: error.flatten().fieldErrors,
+      });
+    }
+    const { firstName, email, lastName } = data;
+
+    const userId = (req as any).user.id;
+    const updated = await authService.updateUserInfo({
+      id: userId,
+      email,
+      firstName,
+      lastName,
+    });
+    res.status(StatusCodes.OK).json(updated);
+  } catch (error: any) {
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message });
+    }
     next(error);
   }
 };

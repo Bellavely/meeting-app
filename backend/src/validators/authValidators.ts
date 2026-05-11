@@ -12,5 +12,9 @@ export const loginSchema = z.object({
     password: z.string().min(1, 'Password is required')
 });
 
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
+
+export const updateUserInfo = z.object ({
+    firstName: z.string().min(1, 'First name is required').max(100),
+    lastName: z.string().min(1, 'Last name is required').max(100),
+    email: z.string().email('Invalid email address')
+})

@@ -1,40 +1,30 @@
-import { 
-    createUser, 
-    findUserByEmail, 
-    validatePassword, 
-    findUserById 
-} from "../dal/models/User";
-import { 
-    createRefreshToken, 
-    deleteRefreshToken, 
-    findRefreshToken, 
-    updateRefreshToken 
-} from "../dal/models/RefreshToken";
+import * as models from "../dal/models";
 import { generateAccessToken, generateRefreshToken, JWT_SECRET } from "../utils";
 import jwt from "jsonwebtoken";
+import { User } from "../types";
 
 export const registerUser = async (userData: any) => {
-    const existingUser = await findUserByEmail(userData.email);
+    const existingUser = await models.findUserByEmail(userData.email);
     if (existingUser) {
         throw { status: 409, message: "User already exists" };
     }
 
-    return await createUser(userData);
+    return await models.createUser(userData);
 };
 
 export const loginUser = async (email: string, password: string) => {
-    const user = await findUserByEmail(email);
+    const user = await models.findUserByEmail(email);
     if (!user || !user.password) {
         throw { status: 401, message: "Invalid credentials" };
     }
 
-    const isPasswordValid = await validatePassword(password, user.password);
+    const isPasswordValid = await models.validatePassword(password, user.password);
     if (!isPasswordValid) {
         throw { status: 401, message: "Invalid credentials" };
     }
 
     const accessToken = generateAccessToken(user.id, user.email);
-    const refreshToken = await createRefreshToken(user.id);
+    const refreshToken = await models.createRefreshToken(user.id);
 
     return {
         accessToken,
@@ -48,7 +38,7 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 export const refreshUserToken = async (refreshToken: string) => {
-    const storedToken = await findRefreshToken(refreshToken);
+    const storedToken = await models.findRefreshToken(refreshToken);
     if (!storedToken) {
         throw { status: 401, message: "Invalid or expired refresh token" };
     }
@@ -59,14 +49,14 @@ export const refreshUserToken = async (refreshToken: string) => {
         throw { status: 401, message: "Invalid or expired refresh token" };
     }
 
-    const tokenUser = await findUserById(storedToken.userId);
+    const tokenUser = await models.findUserById(storedToken.userId);
     if (!tokenUser) {
         throw { status: 401, message: "User not found" };
     }
 
     const newRefreshToken = generateRefreshToken(tokenUser.id);
     const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
-    await updateRefreshToken(tokenUser.id, refreshToken, newRefreshToken);
+    await models.updateRefreshToken(tokenUser.id, refreshToken, newRefreshToken);
 
     return {
         accessToken,
@@ -79,6 +69,15 @@ export const refreshUserToken = async (refreshToken: string) => {
     };
 };
 
-export const logout = async(refreshUserToken:string) =>{
-    await deleteRefreshToken(refreshUserToken)
+export const logout = async(refreshToken:string) =>{
+    await models.deleteRefreshToken(refreshToken)
+}
+
+export const updateUserInfo = async({id,lastName,firstName,email}:Omit<User, 'password' | 'createdAt'>) =>{
+    const existingUser = await models.findUserById(id);
+    if (!existingUser) {
+        throw { status: 404, message: "User not found" };
+    }
+
+    return await models.updateUser(id, firstName, lastName, email);
 }
