@@ -17,6 +17,8 @@
   "scripts": {
     "dev:backend": "npm -C backend run dev",
     "dev:frontend": "npm -C frontend run dev",
-    "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+    "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm -C frontend install && npm -C frontend run build && npm -C backend install && npm -C backend run build",
+    "start": "npm -C backend start"
   }
 }
