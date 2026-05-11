@@ -9,7 +9,7 @@
     "db:init": "ts-node src/db/init-db.ts",
     "test:auth": "ts-node src/tests/auth.test.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "tsc && cp -r src/dal/db/migrations dist/dal/db/",
     "start": "node dist/server.js"
   },
   "type": "commonjs",
