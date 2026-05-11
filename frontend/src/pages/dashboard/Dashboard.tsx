@@ -217,6 +217,7 @@ export const Dashboard: FC = () => {
           onSubmit={handleFormSubmit}
           selectedDate={date}
           initialData={editingData}
+          editing={!!editingMeetingId}
         />
 
         <MeetingDetailsModal

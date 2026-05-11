@@ -8,6 +8,7 @@ interface CreateMeetingModalProps {
   onSubmit: (data: any) => void;
   initialData?: any;
   selectedDate: Date;
+  editing?: boolean;
 }
 
 export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
@@ -16,6 +17,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   onSubmit,
   initialData,
   selectedDate,
+  editing = false,
 }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -228,7 +230,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             disabled={!!(formData.address && !formData.latitude)}
             style={{ opacity: (formData.address && !formData.latitude) ? 0.5 : 1 }}
           >
-            {initialData ? "Update Meeting" : "Create Meeting"}
+            {editing ? "Update Meeting" : "Create Meeting"}
           </button>
         </form>
       </div>
