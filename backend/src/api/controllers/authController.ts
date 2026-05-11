@@ -29,9 +29,6 @@ export const register = async (
       user,
     });
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
-    }
     next(error);
   }
 };
@@ -67,9 +64,6 @@ export const login = async (
       user: result.user,
     });
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
-    }
     next(error);
   }
 };
@@ -106,9 +100,6 @@ export const refresh = async (
       user: user,
     });
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
-    }
     next(error);
   }
 };
@@ -145,7 +136,7 @@ export const updateUser = async (
     }
 
     console.log("Received update request with data:", data);
-    
+
     const { firstName, email, lastName } = data;
 
     const userId = (req as any).user.id;
