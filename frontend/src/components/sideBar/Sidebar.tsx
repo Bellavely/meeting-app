@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { NavLink } from "react-router-dom";
-import { LogOut, LayoutDashboard, User, Settings, CalendarDays } from "lucide-react";
+import { LogOut, LayoutDashboard, User, CalendarDays } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "./Sidebar.css";
 
