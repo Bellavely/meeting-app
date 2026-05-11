@@ -143,20 +143,20 @@ export const updateUser = async (
         errors: error.flatten().fieldErrors,
       });
     }
+
+    console.log("Received update request with data:", data);
+    
     const { firstName, email, lastName } = data;
 
     const userId = (req as any).user.id;
     const updated = await authService.updateUserInfo({
       id: userId,
-      email,
-      firstName,
       lastName,
+      firstName,
+      email,
     });
     res.status(StatusCodes.OK).json(updated);
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
-    }
     next(error);
   }
 };

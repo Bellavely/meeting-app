@@ -31,5 +31,9 @@ export const updateMeetingSchema = z.object({
     path: ['endTime'],
 });
 
+export const deleteMeetingSchema = z.object({
+    id: z.string().uuid({ message: 'Invalid meeting ID format' }),
+});
+
 export type CreateMeetingInput = z.infer<typeof createMeetingSchema>;
 export type UpdateMeetingInput = z.infer<typeof updateMeetingSchema>;

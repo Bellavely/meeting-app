@@ -29,10 +29,14 @@ export const Profile: FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    try {
       const response = await api.put("/auth/update", formData);
+      if (response.status !== 200) {
+        toast.error(
+          "Failed to update profile",
+        );
+      }
       updateUserData(response.data);
-      
       toast.success("Profile updated successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to update profile");
@@ -54,11 +58,11 @@ export const Profile: FC = () => {
 
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="form-section">
-            <div className="avatar-large">
-              {user?.firstName?.[0] || "U"}
-            </div>
+            <div className="avatar-large">{user?.firstName?.[0] || "U"}</div>
             <div className="user-meta">
-              <h3>{user?.firstName} {user?.lastName}</h3>
+              <h3>
+                {user?.firstName} {user?.lastName}
+              </h3>
               <p>{user?.email}</p>
             </div>
           </div>
@@ -71,7 +75,9 @@ export const Profile: FC = () => {
                 <input
                   type="text"
                   value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -84,7 +90,9 @@ export const Profile: FC = () => {
                 <input
                   type="text"
                   value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -97,7 +105,9 @@ export const Profile: FC = () => {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -105,9 +115,9 @@ export const Profile: FC = () => {
           </div>
 
           <footer className="profile-footer">
-            <button 
-              type="submit" 
-              className="btn-primary submit-btn" 
+            <button
+              type="submit"
+              className="btn-primary submit-btn"
               disabled={loading}
             >
               {loading ? "Saving..." : "Save Changes"}

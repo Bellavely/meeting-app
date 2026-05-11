@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { NavLink } from "react-router-dom";
 import { LogOut, LayoutDashboard, User, Settings, CalendarDays } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "./Sidebar.css";
@@ -24,18 +25,14 @@ export const Sidebar: FC = () => {
       </div>
 
       <nav className="sidebar-nav">
-        <button className="nav-item active">
+        <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <LayoutDashboard size={20} /> 
           <span>Dashboard</span>
-        </button>
-        <button className="nav-item">
+        </NavLink>
+        <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <User size={20} /> 
           <span>Profile</span>
-        </button>
-        <button className="nav-item">
-          <Settings size={20} /> 
-          <span>Settings</span>
-        </button>
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">

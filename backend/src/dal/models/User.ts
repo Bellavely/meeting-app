@@ -38,12 +38,17 @@ export const validatePassword = async (password: string, hash: string): Promise<
     return bcrypt.compare(password, hash);
 };
 
-export const updateUser = async (id: string, email:string,lastName:string, firstName:string): Promise<User> => {
-    const sql = `
+export const updateUser = async (
+  id: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+): Promise<User> => {
+  const sql = `
     UPDATE users 
     SET first_name = $1, last_name = $2, email = $3 
-    WHERE user_id = $4 
-    RETURNING *;
+    WHERE id = $4 
+    RETURNING id, first_name, last_name, email, created_at;
   `;
   const result = await query(sql, [firstName, lastName, email, id]);
   return keysToCamel(result.rows[0]);

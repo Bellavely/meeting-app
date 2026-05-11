@@ -64,9 +64,6 @@ export const updateMeeting = async (
     const updated = await meetingService.updateMeeting(id, data, userId);
     res.status(StatusCodes.OK).json(updated);
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
-    }
     next(error);
   }
 };
@@ -77,11 +74,7 @@ export const deleteMeeting = async (
   next: NextFunction,
 ) => {
   try {
-    const {
-      data,
-      error,
-      success,
-    } = deleteMeetingSchema.safeParse(req.params);
+    const { data, error, success } = deleteMeetingSchema.safeParse(req.params);
     if (!success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         message: "Validation failed",
