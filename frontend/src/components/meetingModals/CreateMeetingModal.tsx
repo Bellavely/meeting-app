@@ -104,7 +104,6 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         <div className="modal-header">
           <div>
             <h2>{initialData ? "Edit Meeting" : "Schedule Meeting"}</h2>
-            <p className="modal-subtitle">For {selectedDate.toDateString()}</p>
           </div>
           <button className="close-btn" onClick={onClose}>
             <X size={24} />
