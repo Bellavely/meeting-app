@@ -2,10 +2,15 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "20.17.0"
+  },
   "scripts": {
     "db:init": "ts-node src/db/init-db.ts",
     "test:auth": "ts-node src/tests/auth.test.ts",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "npm install && npm run build",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

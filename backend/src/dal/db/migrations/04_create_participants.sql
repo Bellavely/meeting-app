@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, meeting_id)
+);

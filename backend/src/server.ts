@@ -36,7 +36,7 @@ app.get("/health", async (_req, res) => {
   }
 });
 
-app.listen(port, async () => {
+app.listen(Number(port), process.env.HOST! ,async () => {
   console.log(`Server running on port ${port}`);
   try {
     await runMigrations();
