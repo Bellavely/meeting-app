@@ -9,8 +9,8 @@ export const createMeeting = async (meetingData: any, userId: string) => {
     });
 };
 
-export const getMyMeetings = async (userId: string) => {
-    return await MeetingModel.getMeetingsByUserId(userId);
+export const getMyMeetings = async (userId: string, filters: any = {}) => {
+  return await MeetingModel.getMeetingsByUserId(userId, filters);
 };
 
 export const updateMeeting = async (id: string, meetingData: any, userId: string) => {

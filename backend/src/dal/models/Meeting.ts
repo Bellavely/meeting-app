@@ -19,10 +19,73 @@ export const getMeetingById = async (id: string): Promise<Meeting | null> => {
     return result.rows[0] ? keysToCamel(result.rows[0]) : null;
 };
 
-export const getMeetingsByUserId = async (userId: string): Promise<Meeting[]> => {
-    const sql = `SELECT * FROM meetings WHERE organizer_id = $1 ORDER BY start_time ASC`;
-    const result = await query(sql, [userId]);
-    return result.rows.map(row => keysToCamel(row));
+export const getMeetingsByUserId = async (
+  userId: string,
+  filters: {
+    search?: string;
+    month?: string; 
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+    offset?: number;
+  } = {},
+): Promise<{ meetings: Meeting[]; totalCount: number }> => {
+  let whereClauses = [`organizer_id = $1`];
+  const values: any[] = [userId];
+  let paramCount = 1;
+
+  if (filters.search) {
+    paramCount++;
+    whereClauses.push(
+      `(title ILIKE $${paramCount} OR description ILIKE $${paramCount})`,
+    );
+    values.push(`%${filters.search}%`);
+  }
+
+  if (filters.month) {
+    paramCount++;
+    whereClauses.push(`TO_CHAR(start_time, 'YYYY-MM') = $${paramCount}`);
+    values.push(filters.month);
+  }
+
+  if (filters.startDate) {
+    paramCount++;
+    whereClauses.push(`start_time >= $${paramCount}`);
+    values.push(filters.startDate);
+  }
+
+  if (filters.endDate) {
+    paramCount++;
+    whereClauses.push(`start_time <= $${paramCount}`);
+    values.push(filters.endDate);
+  }
+
+  const whereSql = whereClauses.join(" AND ");
+
+  // Get total count first
+  const countSql = `SELECT COUNT(*) FROM meetings WHERE ${whereSql}`;
+  const countResult = await query(countSql, values);
+  const totalCount = parseInt(countResult.rows[0].count);
+
+  // Get paginated results
+  let sql = `SELECT * FROM meetings WHERE ${whereSql} ORDER BY start_time ASC`;
+
+  if (filters.limit !== undefined) {
+    paramCount++;
+    sql += ` LIMIT $${paramCount}`;
+    values.push(filters.limit);
+  }
+
+  if (filters.offset !== undefined) {
+    paramCount++;
+    sql += ` OFFSET $${paramCount}`;
+    values.push(filters.offset);
+  }
+
+  const result = await query(sql, values);
+  const meetings = result.rows.map((row) => keysToCamel(row));
+
+  return { meetings, totalCount };
 };
 
 export const updateMeeting = async (id: string, input: UpdateMeetingInput): Promise<Meeting | null> => {

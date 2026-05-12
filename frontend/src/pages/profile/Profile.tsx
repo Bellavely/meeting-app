@@ -46,7 +46,7 @@ export const Profile: FC = () => {
   };
 
   return (
-    <div className="profile-container">
+    <>
       <div className="profile-card card">
         <header className="profile-header">
           <button className="back-btn" onClick={() => navigate("/")}>
@@ -125,6 +125,6 @@ export const Profile: FC = () => {
           </footer>
         </form>
       </div>
-    </div>
+    </>
   );
 };

@@ -37,8 +37,56 @@ export const getMyMeetings = async (
 ) => {
   try {
     const userId = (req as any).user.id;
-    const meetings = await meetingService.getMyMeetings(userId);
-    res.status(StatusCodes.OK).json(meetings);
+    const { month, page = 1, limit = 10 } = req.query as any;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { meetings, totalCount } = await meetingService.getMyMeetings(
+      userId,
+      {
+        month,
+        limit: parseInt(limit),
+        offset,
+      },
+    );
+    res.status(StatusCodes.OK).json({
+      meetings,
+      pagination: {
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const queryMeetings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = (req as any).user.id;
+    const { search, page = 1, limit = 10 } = req.query as any;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { meetings, totalCount } = await meetingService.getMyMeetings(
+      userId,
+      {
+        search,
+        limit: parseInt(limit),
+        offset,
+      },
+    );
+    res.status(StatusCodes.OK).json({
+      meetings,
+      pagination: {
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit),
+      },
+    });
   } catch (error) {
     next(error);
   }
