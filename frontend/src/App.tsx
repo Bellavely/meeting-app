@@ -33,11 +33,12 @@ const App: FC = () => {
               </PrivateRoute>
             }
           >
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route index element={<Dashboard />} />
+            <Route path="history" element={<History />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
+
       </Router>
     </AuthProvider>
   );

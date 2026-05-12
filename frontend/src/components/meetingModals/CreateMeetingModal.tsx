@@ -9,17 +9,18 @@ interface CreateMeetingModalProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialData?: any;
-  selectedDate: Date;
+  selectedDate?: Date;
   isEditing?: boolean;
 }
+
 
 export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
   initialData,
-  selectedDate,
-   isEditing = false,
+  selectedDate = new Date(),
+  isEditing = false,
 }) => {
   const { user: currentUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -45,19 +46,21 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
 
 
   useEffect(() => {
-    if (isEditing) {
+    if (!isOpen) return;
+
+    if (isEditing && initialData) {
       setFormData(initialData);
       if (initialData.address) {
         setIsInternalUpdate(true);
       }
-      setSuggestions([])
+      setSuggestions([]);
     } else {
       setFormData({
         title: "",
         description: "",
-        date: selectedDate.toISOString().split("T")[0],
-        startTime: "00:00",
-        endTime: "00:00",
+        date: selectedDate ? selectedDate.toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        startTime: "09:00",
+        endTime: "10:00",
         address: "",
         latitude: "",
         longitude: "",
@@ -65,18 +68,16 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     }
     setSuggestions([]);
     
-    // Set initial participants if editing
-    if (initialData && initialData.participants) {
-      // Ensure we keep the user ID for correct filtering and removal
+    if (isEditing && initialData && initialData.participants) {
       setParticipants(initialData.participants.map((p: any) => ({
         ...(p.user || p),
-        id: p.userId || p.id // the user ID is needed for filtering
+        id: p.userId || p.id
       })));
     } else {
-
       setParticipants([]);
     }
-  }, [isEditing,initialData, isOpen, selectedDate]);
+  }, [isOpen, isEditing, initialData]);
+
 
 
   const searchAddress = async (query: string) => {
