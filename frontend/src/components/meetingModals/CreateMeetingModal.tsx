@@ -66,8 +66,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     
     // Set initial participants if editing
     if (initialData && initialData.participants) {
-      setParticipants(initialData.participants.map((p: any) => p.user || p));
+      // Ensure we keep the user ID for correct filtering and removal
+      setParticipants(initialData.participants.map((p: any) => ({
+        ...(p.user || p),
+        id: p.userId || p.id // the user ID is needed for filtering
+      })));
     } else {
+
       setParticipants([]);
     }
   }, [initialData, isOpen, selectedDate]);

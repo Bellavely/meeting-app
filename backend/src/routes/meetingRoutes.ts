@@ -12,6 +12,7 @@ meetingRouter.get('/my', getMyMeetings);
 meetingRouter.get('/query', queryMeetings);
 meetingRouter.get('/invitations', participantController.getMyInvitations);
 meetingRouter.get('/:id/participants', participantController.getMeetingParticipants);
+meetingRouter.post('/:id/participants/sync', participantController.syncMeetingParticipants);
 meetingRouter.post('/:id/invite', participantController.inviteParticipant);
 meetingRouter.put('/:id/respond', participantController.respondToInvitation);
 meetingRouter.put('/:id', updateMeeting);

@@ -34,7 +34,9 @@ export const Dashboard: FC = () => {
     address: "",
     latitude: "",
     longitude: "",
+    participants: [] as any[],
   });
+
 
   const fetchInvitations = async () => {
     try {
@@ -100,16 +102,17 @@ export const Dashboard: FC = () => {
         toast.success("Meeting created");
       }
 
-      // Invite participants
-      if (meetingId && participants && participants.length > 0) {
-        for (const p of participants) {
-          try {
-            await api.post(`/meetings/${meetingId}/invite`, { email: p.email });
-          } catch (e) {
-            console.error(`Failed to invite ${p.email}`, e);
-          }
+      // Sync participants
+      if (meetingId && participants) {
+        try {
+          await api.post(`/meetings/${meetingId}/participants/sync`, {
+            emails: participants.map((p: any) => p.email),
+          });
+        } catch (e) {
+          console.error("Failed to sync participants", e);
         }
       }
+
 
       setShowCreateModal(false);
       setEditingMeetingId(null);
@@ -155,7 +158,9 @@ export const Dashboard: FC = () => {
     description,
     endTime,
     startTime,
-  }: Meeting) => {
+    participants,
+  }: Meeting & { participants?: any[] }) => {
+
     const start = new Date(startTime);
     const end = new Date(endTime);
     setEditingData({
@@ -167,7 +172,9 @@ export const Dashboard: FC = () => {
       address: address || "",
       latitude: latitude?.toString() || "",
       longitude: longitude?.toString() || "",
+      participants: participants || [],
     });
+
 
     setEditingMeetingId(id);
     setShowCreateModal(true);

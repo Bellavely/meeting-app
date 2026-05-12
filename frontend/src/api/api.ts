@@ -4,7 +4,6 @@ let accessToken: string | null = null;
 const serverUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const setAccessToken = (token: string | null) => {
-  console.log("Setting access token:", token ? "Token present" : "Token cleared");
   accessToken = token;
 };
 

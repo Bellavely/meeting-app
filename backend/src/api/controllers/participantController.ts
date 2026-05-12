@@ -61,3 +61,21 @@ export const getMyInvitations = async (req: Request, res: Response, next: NextFu
         next(error);
     }
 };
+
+export const syncMeetingParticipants = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+        const meetingId = req.params.id as string;
+        const { emails } = req.body;
+        const organizerId = (req as any).user.id;
+
+        if (!Array.isArray(emails)) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Emails must be an array' });
+        }
+
+        await meetingService.syncParticipants(meetingId, emails, organizerId);
+        res.status(StatusCodes.OK).json({ message: 'Participants synced successfully' });
+    } catch (error: any) {
+        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    }
+};
+

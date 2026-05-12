@@ -44,6 +44,53 @@ export const getUserInvitations = async (userId: string) => {
     return await ParticipantModel.getUserInvitations(userId);
 };
 
+export const uninviteParticipant = async (meetingId: string, userId: string, organizerId: string) => {
+    const meeting = await MeetingModel.getMeetingById(meetingId);
+    if (!meeting) throw new Error('Meeting not found');
+    if (meeting.organizerId !== organizerId) throw new Error('Only organizer can uninvite participants');
+
+    return await ParticipantModel.removeParticipant(meetingId, userId);
+};
+
+export const syncParticipants = async (meetingId: string, emails: string[], organizerId: string) => {
+    const meeting = await MeetingModel.getMeetingById(meetingId);
+    if (!meeting) throw new Error('Meeting not found');
+    if (meeting.organizerId !== organizerId) throw new Error('Only organizer can sync participants');
+
+    // Get current participants
+    const currentParticipants = await ParticipantModel.getMeetingParticipants(meetingId);
+    const currentEmails = currentParticipants
+        .filter(p => p.user)
+        .map(p => p.user!.email.toLowerCase());
+
+    const lowerCaseEmails = emails.map(e => e.toLowerCase());
+
+    // Find to add
+    const toAdd = emails.filter(email => !currentEmails.includes(email.toLowerCase()));
+    
+    // Find to remove
+    const toRemove = currentParticipants.filter(p => 
+        p.user && !lowerCaseEmails.includes(p.user.email.toLowerCase())
+    );
+
+
+    // Execute additions
+    for (const email of toAdd) {
+        try {
+            await inviteParticipant(meetingId, email, organizerId);
+        } catch (e) {
+            console.error(`Sync: Failed to invite ${email}`, e);
+        }
+    }
+
+    // Execute removals
+    for (const p of toRemove) {
+        await ParticipantModel.removeParticipant(meetingId, p.userId);
+    }
+};
+
+
+
 export const updateMeeting = async (id: string, meetingData: any, userId: string) => {
     const existing = await MeetingModel.getMeetingById(id);
     if (!existing) {
