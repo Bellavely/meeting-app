@@ -53,3 +53,14 @@ export const updateUser = async (
   const result = await query(sql, [firstName, lastName, email, id]);
   return keysToCamel(result.rows[0]);
 };
+
+export const searchUsers = async (searchTerm: string, limit: number = 10): Promise<User[]> => {
+    const sql = `
+        SELECT id, first_name, last_name, email, created_at 
+        FROM users 
+        WHERE (first_name ILIKE $1 OR last_name ILIKE $1 OR email ILIKE $1)
+        LIMIT $2
+    `;
+    const result = await query(sql, [`%${searchTerm}%`, limit]);
+    return result.rows.map(row => keysToCamel(row));
+};

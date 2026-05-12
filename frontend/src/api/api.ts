@@ -4,7 +4,6 @@ let accessToken: string | null = null;
 const serverUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const setAccessToken = (token: string | null) => {
-  console.log("Setting access token:", token ? "Token present" : "Token cleared");
   accessToken = token;
 };
 
@@ -14,6 +13,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+
   console.log("Request Interceptor - URL:", config.url, "Has Access Token:", !!accessToken);
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;

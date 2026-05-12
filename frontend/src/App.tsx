@@ -7,12 +7,13 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import "./index.css";
-import { Dashboard, Login, Register, Profile } from "./pages";
+import { Dashboard, Login, Register, Profile, History } from "./pages";
+import { MainLayout } from "./components";
 import { Toaster } from "sonner";
 
 const PrivateRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <div>Loading...</div>;
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
@@ -22,34 +23,20 @@ const App: FC = () => {
       <Toaster position="bottom-right" richColors />
       <Router>
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
           <Route
-            path="/login"
-            element={
-                <Login />
-            }
-          />
-          <Route
-            path="/register"
-            element={
-                <Register />
-            }
-          />
-          <Route
-            path="/profile"
             element={
               <PrivateRoute>
-                <Profile />
+                <MainLayout />
               </PrivateRoute>
             }
-          />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
+          >
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>

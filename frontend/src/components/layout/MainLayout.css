@@ -1,0 +1,26 @@
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+  margin-left: 320px; /* Width of the sidebar */
+  padding: 2.5rem;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 80px; /* Reduced margin for collapsed or smaller sidebar */
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+    padding-bottom: 5rem; /* Space for mobile nav if needed */
+  }
+}

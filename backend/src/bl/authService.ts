@@ -30,11 +30,13 @@ export const loginUser = async (email: string, password: string) => {
         accessToken,
         refreshToken,
         user: {
+            id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
         }
     };
+
 };
 
 export const refreshUserToken = async (refreshToken: string) => {
@@ -62,11 +64,13 @@ export const refreshUserToken = async (refreshToken: string) => {
         accessToken,
         refreshToken: newRefreshToken,
         user: {
+            id: tokenUser.id,
             firstName: tokenUser.firstName,
             lastName: tokenUser.lastName,
             email: tokenUser.email,
         }
     };
+
 };
 
 export const logout = async(refreshToken:string) =>{
