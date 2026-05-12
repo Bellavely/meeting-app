@@ -13,7 +13,7 @@ import { Toaster } from "sonner";
 
 const PrivateRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <div>Loading...</div>;
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 

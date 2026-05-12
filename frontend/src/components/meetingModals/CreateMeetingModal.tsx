@@ -10,7 +10,7 @@ interface CreateMeetingModalProps {
   onSubmit: (data: any) => void;
   initialData?: any;
   selectedDate: Date;
-  editing?: boolean;
+  isEditing?: boolean;
 }
 
 export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
@@ -19,7 +19,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   onSubmit,
   initialData,
   selectedDate,
-  editing = false,
+   isEditing = false,
 }) => {
   const { user: currentUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -45,11 +45,12 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
 
 
   useEffect(() => {
-    if (initialData) {
+    if (isEditing) {
       setFormData(initialData);
       if (initialData.address) {
         setIsInternalUpdate(true);
       }
+      setSuggestions([])
     } else {
       setFormData({
         title: "",
@@ -75,7 +76,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
 
       setParticipants([]);
     }
-  }, [initialData, isOpen, selectedDate]);
+  }, [isEditing,initialData, isOpen, selectedDate]);
 
 
   const searchAddress = async (query: string) => {
@@ -151,7 +152,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       <div className="card modal-content create-modal">
         <div className="modal-header">
           <div>
-            <h2>{editing ? "Edit Meeting" : "Schedule Meeting"}</h2>
+            <h2>{isEditing ? "Edit Meeting" : "Schedule Meeting"}</h2>
           </div>
           <button className="close-btn" onClick={onClose}>
             <X size={24} />
@@ -344,7 +345,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
               opacity: formData.address && !formData.latitude ? 0.5 : 1,
             }}
           >
-            {editing ? "Update Meeting" : "Create Meeting"}
+            {isEditing ? "Update Meeting" : "Create Meeting"}
           </button>
         </form>
       </div>

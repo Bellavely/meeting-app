@@ -38,7 +38,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }
     };
     initAuth();
-  }, []);
+  }, [user]);
 
   const login = (token: string, userData: User) => {
     setAccessToken(token);
