@@ -1,5 +1,7 @@
 import React, { FC, useState, useEffect } from "react";
-import { MapPin, X } from "lucide-react";
+import { MapPin, X, Search } from "lucide-react";
+import { api } from "../../api/api";
+import { useAuth } from "../../context/AuthContext";
 import "./Modal.css";
 
 interface CreateMeetingModalProps {
@@ -19,6 +21,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   selectedDate,
   editing = false,
 }) => {
+  const { user: currentUser } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -33,6 +36,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+
+  // Participant search state
+  const [participants, setParticipants] = useState<any[]>([]);
+  const [participantSearch, setParticipantSearch] = useState("");
+  const [userSuggestions, setUserSuggestions] = useState<any[]>([]);
+  const [isSearchingParticipants, setIsSearchingParticipants] = useState(false);
+
 
   useEffect(() => {
     if (initialData) {
@@ -53,7 +63,15 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       });
     }
     setSuggestions([]);
+    
+    // Set initial participants if editing
+    if (initialData && initialData.participants) {
+      setParticipants(initialData.participants.map((p: any) => p.user || p));
+    } else {
+      setParticipants([]);
+    }
   }, [initialData, isOpen, selectedDate]);
+
 
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
@@ -91,19 +109,44 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     return () => clearTimeout(timer);
   }, [formData.address, isOpen]);
 
+  // Debounced participant search
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (participantSearch.trim().length >= 2) {
+        setIsSearchingParticipants(true);
+        try {
+          const response = await api.get(`/users/search?q=${participantSearch}`);
+          // Filter out current user from suggestions
+          const filtered = response.data.filter((u: any) => u.email !== currentUser?.email);
+          setUserSuggestions(filtered);
+        } catch (error) {
+          console.error("User search failed", error);
+        } finally {
+          setIsSearchingParticipants(false);
+        }
+      } else {
+        setUserSuggestions([]);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [participantSearch, currentUser?.email]);
+
+
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({ ...formData, participants });
   };
+
 
   return (
     <div className="modal-overlay">
       <div className="card modal-content create-modal">
         <div className="modal-header">
           <div>
-            <h2>{initialData ? "Edit Meeting" : "Schedule Meeting"}</h2>
+            <h2>{editing ? "Edit Meeting" : "Schedule Meeting"}</h2>
           </div>
           <button className="close-btn" onClick={onClose}>
             <X size={24} />
@@ -223,11 +266,78 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             </span>
           </div>
 
-          <button 
-            type="submit" 
+          <div className="form-group participant-search-group">
+            <label>Invite Participants</label>
+            <div className="input-with-icon">
+              <Search size={18} className="input-icon" />
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={participantSearch}
+                onChange={(e) => setParticipantSearch(e.target.value)}
+              />
+            </div>
+            {isSearchingParticipants && (
+              <div className="searching-indicator">Searching users...</div>
+            )}
+            {participantSearch.trim().length >= 2 && !isSearchingParticipants && userSuggestions.length === 0 && (
+              <div className="suggestions-dropdown no-results">
+                <div className="suggestion-item disabled">No users found</div>
+              </div>
+            )}
+            {userSuggestions.length > 0 && (
+              <div className="suggestions-dropdown">
+                {userSuggestions.map((u) => (
+                  <div
+                    key={u.id}
+                    className="suggestion-item user-suggestion"
+                    onClick={() => {
+                      if (!participants.find((p) => p.id === u.id)) {
+                        setParticipants([...participants, u]);
+                      }
+                      setParticipantSearch("");
+                      setUserSuggestions([]);
+                    }}
+                  >
+                    <div className="suggestion-user-info">
+                      <span className="user-name">
+                        {u.firstName} {u.lastName}
+                      </span>
+                      <span className="user-email">{u.email}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+
+          {participants.length > 0 && (
+            <div className="participants-tags">
+              {participants.map((p) => (
+                <div key={p.id} className="participant-tag">
+                  <span>{p.email}</span>
+                  <button
+                    type="button"
+                    className="remove-tag"
+                    onClick={() =>
+                      setParticipants(participants.filter((pt) => pt.id !== p.id))
+                    }
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="submit"
             className="btn-primary submit-btn"
             disabled={!!(formData.address && !formData.latitude)}
-            style={{ opacity: (formData.address && !formData.latitude) ? 0.5 : 1 }}
+            style={{
+              opacity: formData.address && !formData.latitude ? 0.5 : 1,
+            }}
           >
             {editing ? "Update Meeting" : "Create Meeting"}
           </button>
@@ -236,3 +346,4 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     </div>
   );
 };
+

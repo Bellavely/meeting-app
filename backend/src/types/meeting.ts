@@ -1,4 +1,4 @@
-export type Meeting ={
+export type Meeting = {
     id: string;
     title: string;
     description?: string;
@@ -14,3 +14,30 @@ export type Meeting ={
 
 export type CreateMeetingInput = Omit<Meeting, 'id' | 'createdAt' | 'updatedAt'>;
 export type UpdateMeetingInput = Partial<CreateMeetingInput>;
+
+// DTO for controller-to-service communication if needed, or just use partial
+export type MeetingDTO = Omit<CreateMeetingInput, 'organizerId' | 'startTime' | 'endTime'> & {
+    startTime: string;
+    endTime: string;
+};
+
+export enum ParticipationStatus {
+    PENDING = 'PENDING',
+    ACCEPTED = 'ACCEPTED',
+    DECLINED = 'DECLINED'
+}
+
+export type Participant = {
+    id: string;
+    userId: string;
+    meetingId: string;
+    status: ParticipationStatus;
+    createdAt: Date;
+    updatedAt: Date;
+    // Optional joined user data
+    user?: {
+        firstName: string;
+        lastName: string;
+        email: string;
+    }
+}

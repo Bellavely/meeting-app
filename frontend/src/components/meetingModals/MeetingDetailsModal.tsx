@@ -1,17 +1,9 @@
-import { FC } from "react";
-import { MapPin, X } from "lucide-react";
+import { FC, useEffect, useState } from "react";
+import { MapPin, X, Users } from "lucide-react";
+import { api } from "../../api/api";
+import { Meeting } from "../../types";
+import { useAuth } from "../../context/AuthContext";
 import "./Modal.css";
-
-type Meeting = {
-  id: string;
-  title: string;
-  description: string;
-  startTime: string;
-  endTime: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-};
 
 type MeetingDetailsModalProps = {
   meeting: Meeting | null;
@@ -26,6 +18,32 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const { user: currentUser } = useAuth();
+  const [participants, setParticipants] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  const isOrganizer = currentUser?.id === meeting?.organizerId;
+
+
+  useEffect(() => {
+    if (meeting?.id) {
+      const fetchParticipants = async () => {
+        setLoading(true);
+        try {
+          const response = await api.get(`/meetings/${meeting.id}/participants`);
+          setParticipants(response.data);
+        } catch (error) {
+          console.error("Failed to fetch participants", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchParticipants();
+    } else {
+      setParticipants([]);
+    }
+  }, [meeting?.id]);
+
   if (!meeting) return null;
 
   const getGoogleMapsEmbedUrl = (
@@ -55,8 +73,8 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
             <X size={24} />
           </button>
         </div>
-        <div>
-          {" "}
+        
+        <div className="modal-time">
           {new Date(meeting.startTime).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -67,6 +85,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
             minute: "2-digit",
           })}
         </div>
+        
         <p className="modal-description">{meeting.description}</p>
 
         <div className="location-info">
@@ -84,18 +103,50 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
           ></iframe>
         )}
 
+        <div className="participants-section">
+          <div className="section-title">
+            <Users size={18} />
+            <h3>Participants</h3>
+            <span className="count">{participants.length}</span>
+          </div>
+          <div className="participants-list-inline">
+            {loading ? (
+              <p className="loading-text">Loading participants...</p>
+            ) : participants.length > 0 ? (
+              participants.map((p) => (
+                <div key={p.id} className="participant-item">
+                  <div className="user-info">
+                    <span className="name">{p.firstName} {p.lastName}</span>
+                    <span className="status-badge" data-status={p.status}>
+                      {p.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="no-participants">No participants invited.</p>
+            )}
+          </div>
+        </div>
+
         <div className="modal-footer">
-          <button className="btn-primary" onClick={() => onEdit(meeting)}>
-            Edit
-          </button>
-          <button className="btn-danger" onClick={() => onDelete(meeting.id)}>
-            Delete
-          </button>
+          {isOrganizer && (
+            <>
+              <button className="btn-primary" onClick={() => onEdit({...meeting, participants})}>
+                Edit
+              </button>
+              <button className="btn-danger" onClick={() => onDelete(meeting.id)}>
+                Delete
+              </button>
+            </>
+          )}
           <button className="btn-secondary" onClick={onClose}>
             Close
           </button>
         </div>
+
       </div>
     </div>
   );
 };
+

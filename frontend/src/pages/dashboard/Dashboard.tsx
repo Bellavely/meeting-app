@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import Calendar from "react-calendar";
-import { Plus } from "lucide-react";
+import { Plus, Check, X, Bell } from "lucide-react";
 import { api } from "../../api/api";
 import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
@@ -24,6 +24,7 @@ export const Dashboard: FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [invitations, setInvitations] = useState<any[]>([]);
   const [editingData, setEditingData] = useState({
     title: "",
     description: "",
@@ -34,6 +35,15 @@ export const Dashboard: FC = () => {
     latitude: "",
     longitude: "",
   });
+
+  const fetchInvitations = async () => {
+    try {
+      const response = await api.get("/meetings/invitations");
+      setInvitations(response.data);
+    } catch (error) {
+      console.error("Failed to fetch invitations", error);
+    }
+  };
 
   const fetchMeetings = async (month?: string) => {
     try {
@@ -49,9 +59,10 @@ export const Dashboard: FC = () => {
 
   useEffect(() => {
     fetchMeetings();
+    fetchInvitations();
   }, [viewedMonth]);
 
-  const handleFormSubmit = async (formData: Meeting) => {
+  const handleFormSubmit = async (formData: any) => {
     try {
       const baseDate = new Date(date);
       if (formData.date) {
@@ -66,7 +77,7 @@ export const Dashboard: FC = () => {
       const [eH, eM] = formData.endTime.split(":");
       end.setHours(parseInt(eH), parseInt(eM), 0, 0);
 
-      const { date: _, ...rest } = formData;
+      const { date: _, participants, ...rest } = formData;
       const payload = {
         ...rest,
         startTime: start.toISOString(),
@@ -79,12 +90,25 @@ export const Dashboard: FC = () => {
           : undefined,
       };
 
+      let meetingId = editingMeetingId;
       if (editingMeetingId) {
         await api.put(`/meetings/${editingMeetingId}`, payload);
         toast.success("Meeting updated");
       } else {
-        await api.post("/meetings", payload);
+        const response = await api.post("/meetings", payload);
+        meetingId = response.data.id;
         toast.success("Meeting created");
+      }
+
+      // Invite participants
+      if (meetingId && participants && participants.length > 0) {
+        for (const p of participants) {
+          try {
+            await api.post(`/meetings/${meetingId}/invite`, { email: p.email });
+          } catch (e) {
+            console.error(`Failed to invite ${p.email}`, e);
+          }
+        }
       }
 
       setShowCreateModal(false);
@@ -94,6 +118,17 @@ export const Dashboard: FC = () => {
       toast.error(
         `failed to save meeting + ${error.response?.data?.message || ""}`,
       );
+    }
+  };
+
+  const handleInvitationResponse = async (meetingId: string, status: "ACCEPTED" | "DECLINED") => {
+    try {
+      await api.put(`/meetings/${meetingId}/respond`, { status });
+      toast.success(status === "ACCEPTED" ? "Meeting accepted" : "Meeting declined");
+      fetchInvitations();
+      fetchMeetings();
+    } catch (error) {
+      toast.error("Failed to respond to invitation");
     }
   };
 
@@ -196,6 +231,47 @@ export const Dashboard: FC = () => {
               })}
             </h2>
           </div>
+
+          {invitations.length > 0 && (
+            <div className="invitations-section">
+              <div className="section-title">
+                <Bell size={18} className="notification-icon" />
+                <h3>Meeting Invitations</h3>
+                <span className="badge">{invitations.length}</span>
+              </div>
+              <div className="invitations-list">
+                {invitations.map((inv) => (
+                  <div key={inv.id} className="card invitation-card">
+                    <div className="invitation-info">
+                      <p className="invitation-text">
+                        <strong>{inv.organizerFirstName} {inv.organizerLastName}</strong> 
+                        invited you to: <strong>{inv.title}</strong>
+                      </p>
+                      <p className="invitation-time">
+                        {new Date(inv.startTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                      </p>
+                    </div>
+                    <div className="invitation-actions">
+                      <button 
+                        className="btn-icon accept" 
+                        onClick={() => handleInvitationResponse(inv.meetingId, 'ACCEPTED')}
+                        title="Accept"
+                      >
+                        <Check size={18} />
+                      </button>
+                      <button 
+                        className="btn-icon decline" 
+                        onClick={() => handleInvitationResponse(inv.meetingId, 'DECLINED')}
+                        title="Decline"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div
             className="meeting-grid"
