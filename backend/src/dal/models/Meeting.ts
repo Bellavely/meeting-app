@@ -30,45 +30,56 @@ export const getMeetingsByUserId = async (
     offset?: number;
   } = {},
 ): Promise<{ meetings: Meeting[]; totalCount: number }> => {
-  let whereClauses = [`organizer_id = $1`];
+  let whereClauses = [`(m.organizer_id = $1 OR (p.user_id = $1 AND p.status = 'ACCEPTED'))`];
   const values: any[] = [userId];
   let paramCount = 1;
 
   if (filters.search) {
     paramCount++;
     whereClauses.push(
-      `(title ILIKE $${paramCount} OR description ILIKE $${paramCount})`,
+      `(m.title ILIKE $${paramCount} OR m.description ILIKE $${paramCount})`,
     );
     values.push(`%${filters.search}%`);
   }
 
   if (filters.month) {
     paramCount++;
-    whereClauses.push(`TO_CHAR(start_time, 'YYYY-MM') = $${paramCount}`);
+    whereClauses.push(`TO_CHAR(m.start_time, 'YYYY-MM') = $${paramCount}`);
     values.push(filters.month);
   }
 
   if (filters.startDate) {
     paramCount++;
-    whereClauses.push(`start_time >= $${paramCount}`);
+    whereClauses.push(`m.start_time >= $${paramCount}`);
     values.push(filters.startDate);
   }
 
   if (filters.endDate) {
     paramCount++;
-    whereClauses.push(`start_time <= $${paramCount}`);
+    whereClauses.push(`m.start_time <= $${paramCount}`);
     values.push(filters.endDate);
   }
 
   const whereSql = whereClauses.join(" AND ");
 
   // Get total count first
-  const countSql = `SELECT COUNT(*) FROM meetings WHERE ${whereSql}`;
+  const countSql = `
+    SELECT COUNT(DISTINCT m.id) 
+    FROM meetings m
+    LEFT JOIN participants p ON m.id = p.meeting_id
+    WHERE ${whereSql}
+  `;
   const countResult = await query(countSql, values);
   const totalCount = parseInt(countResult.rows[0].count);
 
   // Get paginated results
-  let sql = `SELECT * FROM meetings WHERE ${whereSql} ORDER BY start_time ASC`;
+  let sql = `
+    SELECT DISTINCT m.* 
+    FROM meetings m
+    LEFT JOIN participants p ON m.id = p.meeting_id
+    WHERE ${whereSql} 
+    ORDER BY m.start_time ASC
+  `;
 
   if (filters.limit !== undefined) {
     paramCount++;
