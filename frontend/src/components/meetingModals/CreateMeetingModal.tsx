@@ -3,16 +3,18 @@ import { MapPin, X, Search } from "lucide-react";
 import { api } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
 import "./Modal.css";
+import { ConfirmModal } from "../confirmModal";
+import { Meeting } from "../../types";
 
-interface CreateMeetingModalProps {
+type CreateMeetingModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialData?: any;
   selectedDate?: Date;
   isEditing?: boolean;
-}
-
+  meetings: Meeting[];
+};
 
 export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   isOpen,
@@ -21,6 +23,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   initialData,
   selectedDate = new Date(),
   isEditing = false,
+  meetings,
 }) => {
   const { user: currentUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -37,13 +40,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
-
+  const [dupmeeting, setDupMeeting] = useState<Meeting | null>(null);
+  const [isBusy, setIsBusy] = useState(false);
   // Participant search state
   const [participants, setParticipants] = useState<any[]>([]);
   const [participantSearch, setParticipantSearch] = useState("");
   const [userSuggestions, setUserSuggestions] = useState<any[]>([]);
   const [isSearchingParticipants, setIsSearchingParticipants] = useState(false);
-
 
   useEffect(() => {
     if (!isOpen) return;
@@ -58,7 +61,9 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       setFormData({
         title: "",
         description: "",
-        date: selectedDate ? selectedDate.toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        date: selectedDate
+          ? selectedDate.toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
         startTime: "09:00",
         endTime: "10:00",
         address: "",
@@ -67,18 +72,18 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       });
     }
     setSuggestions([]);
-    
+
     if (isEditing && initialData && initialData.participants) {
-      setParticipants(initialData.participants.map((p: any) => ({
-        ...(p.user || p),
-        id: p.userId || p.id
-      })));
+      setParticipants(
+        initialData.participants.map((p: any) => ({
+          ...(p.user || p),
+          id: p.userId || p.id,
+        })),
+      );
     } else {
       setParticipants([]);
     }
   }, [isOpen, isEditing, initialData]);
-
-
 
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
@@ -122,9 +127,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       if (participantSearch.trim().length >= 2) {
         setIsSearchingParticipants(true);
         try {
-          const response = await api.get(`/users/search?q=${participantSearch}`);
+          const response = await api.get(
+            `/users/search?q=${participantSearch}`,
+          );
           // Filter out current user from suggestions
-          const filtered = response.data.filter((u: any) => u.email !== currentUser?.email);
+          const filtered = response.data.filter(
+            (u: any) => u.email !== currentUser?.email,
+          );
           setUserSuggestions(filtered);
         } catch (error) {
           console.error("User search failed", error);
@@ -138,15 +147,30 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     return () => clearTimeout(timer);
   }, [participantSearch, currentUser?.email]);
 
-
-
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const dupmeeting = meetings
+      .filter((meeting) => {
+        const mDate = new Date(meeting.startTime).toISOString().split("T")[0];
+        return mDate === formData.date;
+      })
+      .filter((meeting) => {
+        const mStart = meeting.startTime.split("T")[1].slice(0, 5);
+        const mEnd = meeting.endTime.split("T")[1].slice(0, 5);
+        return (
+          formData.startTime < mEnd &&
+          formData.endTime > mStart &&
+          meeting.id !== initialData?.id
+        );
+      });
+    if (dupmeeting) {
+      setIsBusy(true);
+      return;
+    }
     onSubmit({ ...formData, participants });
   };
-
 
   return (
     <div className="modal-overlay">
@@ -226,11 +250,11 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
               placeholder="Address (Start typing to search...)"
               value={formData.address}
               onChange={(e) =>
-                setFormData({ 
-                  ...formData, 
+                setFormData({
+                  ...formData,
                   address: e.target.value,
                   latitude: "",
-                  longitude: "" 
+                  longitude: "",
                 })
               }
               autoComplete="off"
@@ -238,7 +262,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             {isSearching && (
               <div className="searching-indicator">Searching...</div>
             )}
-            {suggestions.length > 0  && (
+            {suggestions.length > 0 && (
               <div className="suggestions-dropdown">
                 {suggestions.map((value, index) => (
                   <div
@@ -264,11 +288,18 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
 
           <div className="coord-info">
             <MapPin size={12} />
-            <span style={{ color: !formData.latitude && formData.address ? 'var(--error)' : 'inherit' }}>
+            <span
+              style={{
+                color:
+                  !formData.latitude && formData.address
+                    ? "var(--error)"
+                    : "inherit",
+              }}
+            >
               {formData.latitude
                 ? `Coordinates: ${formData.latitude}, ${formData.longitude}`
-                : formData.address 
-                  ? "Please select an address from the suggestions" 
+                : formData.address
+                  ? "Please select an address from the suggestions"
                   : "Select an address to get coordinates automatically"}
             </span>
           </div>
@@ -287,11 +318,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             {isSearchingParticipants && (
               <div className="searching-indicator">Searching users...</div>
             )}
-            {participantSearch.trim().length >= 2 && !isSearchingParticipants && userSuggestions.length === 0 && (
-              <div className="suggestions-dropdown no-results">
-                <div className="suggestion-item disabled">No users found</div>
-              </div>
-            )}
+            {participantSearch.trim().length >= 2 &&
+              !isSearchingParticipants &&
+              userSuggestions.length === 0 && (
+                <div className="suggestions-dropdown no-results">
+                  <div className="suggestion-item disabled">No users found</div>
+                </div>
+              )}
             {userSuggestions.length > 0 && (
               <div className="suggestions-dropdown">
                 {userSuggestions.map((u) => (
@@ -318,7 +351,6 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             )}
           </div>
 
-
           {participants.length > 0 && (
             <div className="participants-tags">
               {participants.map((p) => (
@@ -328,7 +360,9 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
                     type="button"
                     className="remove-tag"
                     onClick={() =>
-                      setParticipants(participants.filter((pt) => pt.id !== p.id))
+                      setParticipants(
+                        participants.filter((pt) => pt.id !== p.id),
+                      )
                     }
                   >
                     <X size={14} />
@@ -350,7 +384,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
           </button>
         </form>
       </div>
+      <ConfirmModal
+        isOpen={isBusy}
+        title="Confirm Deletion"
+        message={`Are you sure you want to ${isEditing ? "edit" : "create"} this meeting? your schdule this meeting in the same time.`}
+        onConfirm={() => onSubmit({ ...formData, participants })}
+        onCancel={() => setIsBusy(false)}
+      />
     </div>
   );
 };
-

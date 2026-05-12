@@ -4,7 +4,6 @@ import { MeetingDetailsModal } from "./MeetingDetailsModal";
 import { ConfirmModal } from "../confirmModal";
 import { Meeting } from "../../types";
 
-
 type MeetingManagementModalsProps = {
   selectedMeeting: Meeting | null;
   setSelectedMeeting: (meeting: Meeting | null) => void;
@@ -18,7 +17,8 @@ type MeetingManagementModalsProps = {
   handleFormSubmit: (formData: any) => Promise<void>;
   confirmDelete: () => Promise<void>;
   openDeleteConfirmation: (id: string) => void;
-}
+  meetings: Meeting[];
+};
 
 export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
   selectedMeeting,
@@ -33,6 +33,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
   handleFormSubmit,
   confirmDelete,
   openDeleteConfirmation,
+  meetings,
 }) => {
   return (
     <>
@@ -42,6 +43,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
         onSubmit={handleFormSubmit}
         initialData={editingData}
         isEditing={!!editingMeetingId}
+        meetings={meetings}
       />
 
       <MeetingDetailsModal

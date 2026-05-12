@@ -213,6 +213,7 @@ export const Dashboard: FC = () => {
         handleFormSubmit={handleFormSubmit}
         confirmDelete={confirmDelete}
         openDeleteConfirmation={openDeleteConfirmation}
+        meetings={meetings}
       />
 
     </>

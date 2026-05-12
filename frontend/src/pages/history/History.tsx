@@ -1,10 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { api } from "../../api/api";
-import {
-  MeetingCard,
-  MeetingManagementModals,
-} from "../../components";
+import { MeetingCard, MeetingManagementModals } from "../../components";
 import { Meeting } from "../../types";
 import { useMeetingActions } from "../../hooks/useMeetingActions";
 import "./History.css";
@@ -44,7 +41,9 @@ export const History: FC = () => {
       const response = await api.get(`/meetings/query?${params.toString()}`);
       setMeetings(response.data.meetings);
       setTotalPages(
-        Math.ceil(response.data.pagination.total / response.data.pagination.limit),
+        Math.ceil(
+          response.data.pagination.total / response.data.pagination.limit,
+        ),
       );
     } catch (error) {
       console.error("Failed to fetch history", error);
@@ -143,6 +142,7 @@ export const History: FC = () => {
         handleFormSubmit={handleFormSubmit}
         confirmDelete={confirmDelete}
         openDeleteConfirmation={openDeleteConfirmation}
+        meetings={meetings}
       />
     </>
   );

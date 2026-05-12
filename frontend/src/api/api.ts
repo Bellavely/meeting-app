@@ -13,8 +13,6 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-
-  console.log("Request Interceptor - URL:", config.url, "Has Access Token:", !!accessToken);
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
