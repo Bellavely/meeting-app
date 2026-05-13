@@ -5,8 +5,6 @@ import { User } from "../../types";
 export const createUser = async (userData: Partial<User>): Promise<User> => {
   const { firstName, lastName, email, password } = userData;
 
-
-
   const sql = `
         INSERT INTO users (first_name, last_name, email, password)
         VALUES ($1, $2, $3, $4)

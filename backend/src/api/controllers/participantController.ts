@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import * as meetingService from '../../bl/meetingService';
+import * as paricipantsService from '../../bl';
 import * as UserModel from '../../dal/models/User';
 
 export const inviteParticipant = async (req: Request, res: Response, next: NextFunction) => {
@@ -8,8 +8,7 @@ export const inviteParticipant = async (req: Request, res: Response, next: NextF
         const meetingId = req.params.id as string;
         const { email } = req.body;
         const organizerId = (req as any).user.id;
-
-        const participant = await meetingService.inviteParticipant(meetingId, email, organizerId);
+        const participant = await paricipantsService.inviteParticipant(meetingId, email, organizerId);
         res.status(StatusCodes.CREATED).json(participant);
     } catch (error: any) {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -22,7 +21,7 @@ export const respondToInvitation = async (req: Request, res: Response, next: Nex
         const { status } = req.body;
         const userId = (req as any).user.id;
 
-        const updated = await meetingService.respondToInvitation(meetingId, userId, status);
+        const updated = await paricipantsService.respondToInvitation(meetingId, userId, status);
         res.status(StatusCodes.OK).json(updated);
     } catch (error: any) {
         next(error);
@@ -32,7 +31,7 @@ export const respondToInvitation = async (req: Request, res: Response, next: Nex
 export const getMeetingParticipants = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const meetingId = req.params.id as string;
-        const participants = await meetingService.getMeetingParticipants(meetingId);
+        const participants = await paricipantsService.getMeetingParticipants(meetingId);
         res.status(StatusCodes.OK).json(participants);
     } catch (error: any) {
         next(error);
@@ -55,7 +54,7 @@ export const searchUsers = async (req: Request, res: Response, next: NextFunctio
 export const getMyInvitations = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).user.id;
-        const invitations = await meetingService.getUserInvitations(userId);
+        const invitations = await paricipantsService.getUserInvitations(userId);
         res.status(StatusCodes.OK).json(invitations);
     } catch (error: any) {
         next(error);
@@ -72,7 +71,7 @@ export const syncMeetingParticipants = async (req: Request, res: Response, _next
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Emails must be an array' });
         }
 
-        await meetingService.syncParticipants(meetingId, emails, organizerId);
+        await paricipantsService.syncParticipants(meetingId, emails, organizerId);
         res.status(StatusCodes.OK).json({ message: 'Participants synced successfully' });
     } catch (error: any) {
         res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });

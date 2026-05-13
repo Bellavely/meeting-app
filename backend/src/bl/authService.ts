@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 import { User } from "../types";
 import bcrypt from "bcryptjs";
 
-export const registerUser = async (userData: any) => {
+export const registerUser = async (userData: User) => {
   const existingUser = await models.findUserByEmail(userData.email);
   if (existingUser) {
     throw { status: 409, message: "User already exists" };
@@ -29,8 +29,8 @@ export const loginUser = async (email: string, password: string) => {
     throw { status: 401, message: "Invalid credentials" };
   }
 
-  const accessToken = generateAccessToken(user.id, user.email);
-  const refreshToken = await models.createRefreshToken(user.id);
+  const accessToken = generateAccessToken(user.id!, user.email);
+  const refreshToken = await models.createRefreshToken(user.id!);
 
   return {
     accessToken,
@@ -61,9 +61,9 @@ export const refreshUserToken = async (refreshToken: string) => {
     throw { status: 401, message: "User not found" };
   }
 
-  const newRefreshToken = generateRefreshToken(tokenUser.id);
-  const accessToken = generateAccessToken(tokenUser.id, tokenUser.email);
-  await models.updateRefreshToken(tokenUser.id, refreshToken, newRefreshToken);
+  const newRefreshToken = generateRefreshToken(tokenUser.id!);
+  const accessToken = generateAccessToken(tokenUser.id!, tokenUser.email);
+  await models.updateRefreshToken(tokenUser.id!, refreshToken, newRefreshToken);
 
   return {
     accessToken,
@@ -86,11 +86,11 @@ export const updateUserInfo = async ({
   lastName,
   firstName,
   email,
-}: Omit<User, "password" | "createdAt">) => {
-  const existingUser = await models.findUserById(id);
+}: Omit<User, "password">) => {
+  const existingUser = await models.findUserById(id!);
   if (!existingUser) {
     throw { status: 404, message: "User not found" };
   }
 
-  return await models.updateUser(id, firstName, lastName, email);
+  return await models.updateUser(id!, firstName, lastName, email);
 };

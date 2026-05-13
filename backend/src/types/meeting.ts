@@ -1,5 +1,5 @@
 export type Meeting = {
-    id: string;
+    id?: string;
     title: string;
     description?: string;
     startTime: Date;
@@ -8,8 +8,8 @@ export type Meeting = {
     latitude?: number;
     longitude?: number;
     organizerId: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export type CreateMeetingInput = Omit<Meeting, 'id' | 'createdAt' | 'updatedAt'>;
