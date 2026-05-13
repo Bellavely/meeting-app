@@ -57,7 +57,6 @@ export const syncParticipants = async (meetingId: string, emails: string[], orga
     if (!meeting) throw new Error('Meeting not found');
     if (meeting.organizerId !== organizerId) throw new Error('Only organizer can sync participants');
 
-    // Get current participants
     const currentParticipants = await ParticipantModel.getMeetingParticipants(meetingId);
     const currentEmails = currentParticipants
         .filter(p => p.user)
@@ -65,16 +64,12 @@ export const syncParticipants = async (meetingId: string, emails: string[], orga
 
     const lowerCaseEmails = emails.map(e => e.toLowerCase());
 
-    // Find to add
     const toAdd = emails.filter(email => !currentEmails.includes(email.toLowerCase()));
     
-    // Find to remove
     const toRemove = currentParticipants.filter(p => 
         p.user && !lowerCaseEmails.includes(p.user.email.toLowerCase())
     );
 
-
-    // Execute additions
     for (const email of toAdd) {
         try {
             await inviteParticipant(meetingId, email, organizerId);
@@ -83,7 +78,6 @@ export const syncParticipants = async (meetingId: string, emails: string[], orga
         }
     }
 
-    // Execute removals
     for (const p of toRemove) {
         await ParticipantModel.removeParticipant(meetingId, p.userId);
     }

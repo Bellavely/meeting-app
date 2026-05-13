@@ -42,24 +42,6 @@ export const getMeetingsByUserId = async (
     values.push(`%${filters.search}%`);
   }
 
-  if (filters.month) {
-    paramCount++;
-    whereClauses.push(`TO_CHAR(m.start_time, 'YYYY-MM') = $${paramCount}`);
-    values.push(filters.month);
-  }
-
-  if (filters.startDate) {
-    paramCount++;
-    whereClauses.push(`m.start_time >= $${paramCount}`);
-    values.push(filters.startDate);
-  }
-
-  if (filters.endDate) {
-    paramCount++;
-    whereClauses.push(`m.start_time <= $${paramCount}`);
-    values.push(filters.endDate);
-  }
-
   const whereSql = whereClauses.join(" AND ");
 
   // Get total count first
