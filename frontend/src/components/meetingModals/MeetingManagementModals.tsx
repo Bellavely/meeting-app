@@ -35,6 +35,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
   openDeleteConfirmation,
   meetings,
 }) => {
+
   return (
     <>
       <CreateMeetingModal

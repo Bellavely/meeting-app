@@ -9,6 +9,12 @@ export type Meeting = {
   longitude?: number;
   date?: string;
   organizerId?: string;
-  participants?: any[];
+  participants?: Participant[];
 };
 
+export type Participant = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  status: "pending" | "accepted" | "declined";
+};

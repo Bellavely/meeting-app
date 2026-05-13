@@ -150,7 +150,7 @@ export const Dashboard: FC = () => {
                   <div key={inv.id} className="card invitation-card">
                     <div className="invitation-info">
                       <p className="invitation-text">
-                        <strong>{inv.organizerFirstName} {inv.organizerLastName}</strong> 
+                        <strong>{inv.organizerFirstName} {inv.organizerLastName} </strong> 
                         invited you to: <strong>{inv.title}</strong>
                       </p>
                       <p className="invitation-time">
