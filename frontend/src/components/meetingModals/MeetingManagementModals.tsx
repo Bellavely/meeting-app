@@ -42,7 +42,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleFormSubmit}
         initialData={editingData}
-        isEditing={!!editingMeetingId}
+        editingMeetingId={editingMeetingId}
         meetings={meetings}
       />
 
