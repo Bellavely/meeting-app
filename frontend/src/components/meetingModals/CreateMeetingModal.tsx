@@ -40,8 +40,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
-  const [dupmeeting, setDupMeeting] = useState<Meeting | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  
   // Participant search state
   const [participants, setParticipants] = useState<any[]>([]);
   const [participantSearch, setParticipantSearch] = useState("");
@@ -154,12 +154,10 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     const dupmeeting = meetings
       .filter((meeting) => {
         const mDate = new Date(meeting.startTime).toISOString().split("T")[0];
-        return mDate === formData.date;
-      })
-      .filter((meeting) => {
         const mStart = meeting.startTime.split("T")[1].slice(0, 5);
         const mEnd = meeting.endTime.split("T")[1].slice(0, 5);
         return (
+          mDate === formData.date &&
           formData.startTime < mEnd &&
           formData.endTime > mStart &&
           meeting.id !== initialData?.id
@@ -387,7 +385,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       <ConfirmModal
         isOpen={isBusy}
         title="Confirm Deletion"
-        message={`Are you sure you want to ${isEditing ? "edit" : "create"} this meeting? your schdule this meeting in the same time.`}
+        message={`Are you sure you want to ${isEditing ? "edit" : "create"} this meeting? 
+          You already have another meeting scheduled at this same time. `}
         onConfirm={() => onSubmit({ ...formData, participants })}
         onCancel={() => setIsBusy(false)}
       />
