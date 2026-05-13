@@ -1,12 +1,13 @@
 import { FC } from "react";
-import { NavLink } from "react-router-dom";
-import { LogOut, LayoutDashboard, User, CalendarDays, History as HistoryIcon } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { LogOut, LayoutDashboard, CalendarDays, History as HistoryIcon } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "./Sidebar.css";
 
 
 export const Sidebar: FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <aside className="global-sidebar">
@@ -15,7 +16,7 @@ export const Sidebar: FC = () => {
           <CalendarDays size={28} className="brand-icon" />
           <span>MeetSync</span>
         </div>
-        <div className="user-greeting">
+        <div className="user-greeting" onClick={()=> navigate('/profile')}>
           <div className="avatar">{user?.firstName?.[0] || "U"}</div>
           <div className="user-info">
             <span className="user-name">Hi, {user?.firstName}!</span>
@@ -32,10 +33,6 @@ export const Sidebar: FC = () => {
         <NavLink to="/history" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <HistoryIcon size={20} /> 
           <span>History</span>
-        </NavLink>
-        <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <User size={20} /> 
-          <span>Profile</span>
         </NavLink>
       </nav>
 
