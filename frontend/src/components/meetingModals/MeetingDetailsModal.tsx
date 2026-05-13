@@ -21,16 +21,17 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
   const { user: currentUser } = useAuth();
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  
-  const isOrganizer = currentUser?.id === meeting?.organizerId;
 
+  const isOrganizer = currentUser?.id === meeting?.organizerId;
 
   useEffect(() => {
     if (meeting?.id) {
       const fetchParticipants = async () => {
         setLoading(true);
         try {
-          const response = await api.get(`/meetings/${meeting.id}/participants`);
+          const response = await api.get(
+            `/meetings/${meeting.id}/participants`,
+          );
           setParticipants(response.data);
         } catch (error) {
           console.error("Failed to fetch participants", error);
@@ -73,7 +74,15 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
             <X size={24} />
           </button>
         </div>
-        
+
+        <div className="modal-date">
+          {new Date(meeting.startTime).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </div>
+
         <div className="modal-time">
           {new Date(meeting.startTime).toLocaleTimeString([], {
             hour: "2-digit",
@@ -85,7 +94,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
             minute: "2-digit",
           })}
         </div>
-        
+
         <p className="modal-description">{meeting.description}</p>
 
         <div className="location-info">
@@ -116,7 +125,9 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
               participants.map((p) => (
                 <div key={p.id} className="participant-item">
                   <div className="user-info">
-                    <span className="name">{p.firstName} {p.lastName}</span>
+                    <span className="name">
+                      {p.firstName} {p.lastName}
+                    </span>
                     <span className="status-badge" data-status={p.status}>
                       {p.status}
                     </span>
@@ -132,21 +143,22 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
         <div className="modal-footer">
           {isOrganizer && (
             <>
-              <button className="btn-primary" onClick={() => onEdit({...meeting, participants})}>
+              <button
+                className="btn-primary"
+                onClick={() => onEdit({ ...meeting, participants })}
+              >
                 Edit
               </button>
-              <button className="btn-danger" onClick={() => onDelete(meeting.id)}>
+              <button
+                className="btn-danger"
+                onClick={() => onDelete(meeting.id)}
+              >
                 Delete
               </button>
             </>
           )}
-          <button className="btn-secondary" onClick={onClose}>
-            Close
-          </button>
         </div>
-
       </div>
     </div>
   );
 };
-
