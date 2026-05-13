@@ -16,7 +16,8 @@
 .meeting-meta {
   display: flex;
   flex-direction: row;
-  width: 20rem;
+  flex-wrap: wrap;
+  width: 100%;
   gap: 1.5rem;
   font-size: 0.875rem;
   color: var(--text-muted);

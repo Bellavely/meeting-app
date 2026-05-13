@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 
 export interface AppError extends Error {
   statusCode?: number;
+  status?: number;
 }
 
 export const errorMiddleware = (
@@ -11,7 +12,7 @@ export const errorMiddleware = (
   res: Response,
   _next: NextFunction,
 ) => {
-  const statusCode = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+  const statusCode = err.statusCode || err.status || StatusCodes.INTERNAL_SERVER_ERROR;
   const message = err.message || "Something went wrong";
 
   console.error(`[Error] ${statusCode} - ${message}`);

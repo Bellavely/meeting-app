@@ -160,8 +160,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         `${formData.date}T${formData.endTime}`,
       ).getTime();
       return (
-        formStart <= mEnd &&
-        formEnd >= mStart &&
+        formStart < mEnd &&
+        formEnd > mStart &&
         meeting.id !== editingMeetingId
       );
     });

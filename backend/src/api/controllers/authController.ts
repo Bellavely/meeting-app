@@ -53,8 +53,8 @@ export const login = async (
 
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
       path: "/",
     });
@@ -91,9 +91,8 @@ export const refresh = async (
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
+      path: "/",
     });
 
     res.status(StatusCodes.OK).json({
@@ -114,7 +113,11 @@ export const logout = async (
     const refreshToken = req.cookies.refreshToken;
 
     await authService.logout(refreshToken);
-    res.clearCookie("refreshToken");
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
     res.status(StatusCodes.OK).json({ message: "Logged out successfully" });
   } catch (error) {
     next(error);

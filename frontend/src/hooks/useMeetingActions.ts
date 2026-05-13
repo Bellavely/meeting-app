@@ -30,7 +30,7 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       description: meeting.description || "",
       startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
       endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
-      date: start.toISOString().split("T")[0],
+      date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`,
       address: meeting.address || "",
       latitude: meeting.latitude?.toString() || "",
       longitude: meeting.longitude?.toString() || "",
@@ -49,7 +49,9 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       description: "",
       startTime: "09:00",
       endTime: "10:00",
-      date: defaultDate ? defaultDate.toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+      date: defaultDate 
+        ? `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, "0")}-${String(defaultDate.getDate()).padStart(2, "0")}` 
+        : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
       address: "",
       latitude: "",
       longitude: "",
@@ -60,16 +62,21 @@ export const useMeetingActions = (onSuccess?: () => void) => {
 
   const handleFormSubmit = async (formData: any) => {
     try {
-      // Use the date from formData if present, otherwise today
-      const baseDate = formData.date ? new Date(formData.date) : new Date();
+      let start = new Date();
+      let end = new Date();
       
-      const start = new Date(baseDate);
+      if (formData.date) {
+        const [year, month, day] = formData.date.split("-").map(Number);
+        // month is 0-indexed in Date constructor
+        start = new Date(year, month - 1, day);
+        end = new Date(year, month - 1, day);
+      }
+      
       const [sH, sM] = formData.startTime.split(":");
-      start.setHours(parseInt(sH), parseInt(sM), 0, 0);
+      start.setHours(parseInt(sH, 10), parseInt(sM, 10), 0, 0);
 
-      const end = new Date(baseDate);
       const [eH, eM] = formData.endTime.split(":");
-      end.setHours(parseInt(eH), parseInt(eM), 0, 0);
+      end.setHours(parseInt(eH, 10), parseInt(eM, 10), 0, 0);
 
       const { date: _, participants, ...rest } = formData;
       const payload = {
