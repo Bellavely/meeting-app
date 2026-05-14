@@ -99,6 +99,7 @@ export const updateMeeting = async (
 ) => {
   try {
     const { id } = req.params as { id: string };
+    const userId = (req as any).user.id;
 
     const { success, error, data } = updateMeetingSchema.safeParse(req.body);
     if (!success) {
@@ -108,7 +109,6 @@ export const updateMeeting = async (
       });
     }
 
-    const userId = (req as any).user.id;
     const updated = await meetingService.updateMeeting(id, data, userId);
     res.status(StatusCodes.OK).json(updated);
   } catch (error: any) {

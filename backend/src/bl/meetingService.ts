@@ -1,10 +1,8 @@
 import * as MeetingModel from "../dal/models/Meeting";
 import * as ParticipantModel from "../dal/models/Participant";
-import * as UserModel from "../dal/models/User";
 
 import {
   CreateMeetingInput,
-  Meeting,
   MeetingDTO,
   ParticipationStatus,
 } from "../types/meeting";
@@ -44,7 +42,7 @@ export const getUserInvitations = async (userId: string) => {
 
 export const updateMeeting = async (
   id: string,
-  meetingData: Meeting,
+  meetingData: any,
   userId: string,
 ) => {
   const existing = await MeetingModel.getMeetingById(id);
