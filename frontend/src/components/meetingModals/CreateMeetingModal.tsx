@@ -160,9 +160,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         `${formData.date}T${formData.endTime}`,
       ).getTime();
       return (
-        formStart < mEnd &&
-        formEnd > mStart &&
-        meeting.id !== editingMeetingId
+        formStart < mEnd && formEnd > mStart && meeting.id !== editingMeetingId
       );
     });
     if (dupMeeting.length > 0) {
@@ -390,7 +388,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       </div>
       <ConfirmModal
         isOpen={isBusy}
-        title="Confirm Deletion"
+        title="Confirm Scheduling Conflict"
         message={`Are you sure you want to ${editingMeetingId ? "edit" : "create"} this meeting? 
           You already have another meeting scheduled at this same time. `}
         onConfirm={() => {
