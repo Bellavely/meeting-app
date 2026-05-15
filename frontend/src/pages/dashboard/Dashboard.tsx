@@ -37,6 +37,7 @@ export const Dashboard: FC = () => {
     openDeleteConfirmation,
     setShowCreateModal,
     setIsDeleting,
+    isSubmitting,
   } = useMeetingActions(() => {
     fetchMeetings();
     fetchInvitations();
@@ -214,6 +215,7 @@ export const Dashboard: FC = () => {
         confirmDelete={confirmDelete}
         openDeleteConfirmation={openDeleteConfirmation}
         meetings={meetings}
+        isSubmitting={isSubmitting}
       />
 
     </>

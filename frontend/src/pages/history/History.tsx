@@ -21,6 +21,7 @@ export const History: FC = () => {
     editingMeetingId,
     isDeleting,
     startEditing,
+    isSubmitting,
     handleFormSubmit,
     confirmDelete,
     openDeleteConfirmation,
@@ -143,6 +144,7 @@ export const History: FC = () => {
         confirmDelete={confirmDelete}
         openDeleteConfirmation={openDeleteConfirmation}
         meetings={meetings}
+        isSubmitting={isSubmitting}
       />
     </>
   );

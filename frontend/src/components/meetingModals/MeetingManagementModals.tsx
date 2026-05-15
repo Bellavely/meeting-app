@@ -18,6 +18,7 @@ type MeetingManagementModalsProps = {
   confirmDelete: () => Promise<void>;
   openDeleteConfirmation: (id: string) => void;
   meetings: Meeting[];
+  isSubmitting: boolean;
 };
 
 export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
@@ -34,6 +35,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
   confirmDelete,
   openDeleteConfirmation,
   meetings,
+  isSubmitting,
 }) => {
 
   return (
@@ -45,6 +47,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
         initialData={editingData}
         editingMeetingId={editingMeetingId}
         meetings={meetings}
+        isSubmitting={isSubmitting}
       />
 
       <MeetingDetailsModal
@@ -60,6 +63,7 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
         message="Are you sure you want to delete this meeting? This action cannot be undone."
         onConfirm={confirmDelete}
         onCancel={() => setIsDeleting(null)}
+        isLoading={isSubmitting}
       />
     </>
   );

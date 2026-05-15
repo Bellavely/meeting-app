@@ -8,7 +8,8 @@ export const useMeetingActions = (onSuccess?: () => void) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [editingData, setEditingData] = useState({
     title: "",
     description: "",
@@ -24,7 +25,7 @@ export const useMeetingActions = (onSuccess?: () => void) => {
   const startEditing = (meeting: Meeting & { participants?: any[] }) => {
     const start = new Date(meeting.startTime);
     const end = new Date(meeting.endTime);
-    
+
     setEditingData({
       title: meeting.title,
       description: meeting.description || "",
@@ -49,8 +50,8 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       description: "",
       startTime: "09:00",
       endTime: "10:00",
-      date: defaultDate 
-        ? `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, "0")}-${String(defaultDate.getDate()).padStart(2, "0")}` 
+      date: defaultDate
+        ? `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, "0")}-${String(defaultDate.getDate()).padStart(2, "0")}`
         : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
       address: "",
       latitude: "",
@@ -61,17 +62,18 @@ export const useMeetingActions = (onSuccess?: () => void) => {
   };
 
   const handleFormSubmit = async (formData: any) => {
+    setIsSubmitting(true);
     try {
       let start = new Date();
       let end = new Date();
-      
+
       if (formData.date) {
         const [year, month, day] = formData.date.split("-").map(Number);
         // month is 0-indexed in Date constructor
         start = new Date(year, month - 1, day);
         end = new Date(year, month - 1, day);
       }
-      
+
       const [sH, sM] = formData.startTime.split(":");
       start.setHours(parseInt(sH, 10), parseInt(sM, 10), 0, 0);
 
@@ -83,8 +85,12 @@ export const useMeetingActions = (onSuccess?: () => void) => {
         ...rest,
         startTime: start.toISOString(),
         endTime: end.toISOString(),
-        latitude: formData.latitude ? parseFloat(String(formData.latitude)) : undefined,
-        longitude: formData.longitude ? parseFloat(String(formData.longitude)) : undefined,
+        latitude: formData.latitude
+          ? parseFloat(String(formData.latitude))
+          : undefined,
+        longitude: formData.longitude
+          ? parseFloat(String(formData.longitude))
+          : undefined,
       };
 
       let meetingId = editingMeetingId;
@@ -112,12 +118,17 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       setEditingMeetingId(null);
       if (onSuccess) onSuccess();
     } catch (error: any) {
-      toast.error(`Failed to save meeting: ${error.response?.data?.message || error.message}`);
+      toast.error(
+        `Failed to save meeting: ${error.response?.data?.message || error.message}`,
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const confirmDelete = async () => {
     if (!isDeleting) return;
+    setIsSubmitting(true);
     try {
       await api.delete(`/meetings/${isDeleting}`);
       setIsDeleting(null);
@@ -127,6 +138,8 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     } catch (error) {
       console.error("Delete failed", error);
       toast.error("Failed to delete meeting");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -144,6 +157,7 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     editingData,
     isDeleting,
     setIsDeleting,
+    isSubmitting,
     startEditing,
     openCreateModal,
     handleFormSubmit,

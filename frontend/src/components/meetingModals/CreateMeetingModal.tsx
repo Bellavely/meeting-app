@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState, useEffect, useCallback } from "react";
 import { MapPin, X, Search } from "lucide-react";
 import { api } from "../../api/api";
 import { useAuth } from "../../context/AuthContext";
@@ -14,6 +14,7 @@ type CreateMeetingModalProps = {
   selectedDate?: Date;
   editingMeetingId?: string | null;
   meetings: Meeting[];
+  isSubmitting?: boolean;
 };
 
 export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
@@ -24,6 +25,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   selectedDate = new Date(),
   editingMeetingId,
   meetings,
+  isSubmitting = false,
 }) => {
   const { user: currentUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -146,29 +148,34 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     return () => clearTimeout(timer);
   }, [participantSearch, currentUser?.email]);
 
-  if (!isOpen) return null;
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      const dupMeeting = meetings.filter((meeting) => {
+        const mStart = new Date(meeting.startTime).getTime();
+        const mEnd = new Date(meeting.endTime).getTime();
+        const formStart = new Date(
+          `${formData.date}T${formData.startTime}`,
+        ).getTime();
+        const formEnd = new Date(
+          `${formData.date}T${formData.endTime}`,
+        ).getTime();
+        return (
+          formStart < mEnd &&
+          formEnd > mStart &&
+          meeting.id !== editingMeetingId
+        );
+      });
+      if (dupMeeting.length > 0) {
+        setIsBusy(true);
+        return;
+      }
+      onSubmit({ ...formData, participants });
+    },
+    [onSubmit, formData, participants, meetings, editingMeetingId],
+  );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const dupMeeting = meetings.filter((meeting) => {
-      const mStart = new Date(meeting.startTime).getTime();
-      const mEnd = new Date(meeting.endTime).getTime();
-      const formStart = new Date(
-        `${formData.date}T${formData.startTime}`,
-      ).getTime();
-      const formEnd = new Date(
-        `${formData.date}T${formData.endTime}`,
-      ).getTime();
-      return (
-        formStart < mEnd && formEnd > mStart && meeting.id !== editingMeetingId
-      );
-    });
-    if (dupMeeting.length > 0) {
-      setIsBusy(true);
-      return;
-    }
-    onSubmit({ ...formData, participants });
-  };
+  if (!isOpen) return null;
 
   return (
     <>
@@ -376,12 +383,19 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             <button
               type="submit"
               className="btn-primary submit-btn"
-              disabled={!!(formData.address && !formData.latitude)}
+              disabled={isSubmitting || !!(formData.address && !formData.latitude)}
               style={{
-                opacity: formData.address && !formData.latitude ? 0.5 : 1,
+                opacity: (isSubmitting || (formData.address && !formData.latitude)) ? 0.5 : 1,
               }}
             >
-              {editingMeetingId ? "Update Meeting" : "Create Meeting"}
+              {isSubmitting ? (
+                <div className="btn-loading">
+                  <span className="spinner"></span>
+                  Submitting...
+                </div>
+              ) : (
+                editingMeetingId ? "Update Meeting" : "Create Meeting"
+              )}
             </button>
           </form>
         </div>
@@ -396,6 +410,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
           setIsBusy(false);
         }}
         onCancel={() => setIsBusy(false)}
+        isLoading={isSubmitting}
       />
     </>
   );

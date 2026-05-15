@@ -7,9 +7,10 @@ type  ConfirmModalProps =  {
     message: string;
     onConfirm: () => void;
     onCancel: () => void;
+    isLoading?: boolean;
 }
 
-export const ConfirmModal: FC<ConfirmModalProps> = ({ isOpen, title, message, onConfirm, onCancel }) => {
+export const ConfirmModal: FC<ConfirmModalProps> = ({ isOpen, title, message, onConfirm, onCancel, isLoading = false }) => {
     if (!isOpen) return null;
 
     return (
@@ -18,8 +19,10 @@ export const ConfirmModal: FC<ConfirmModalProps> = ({ isOpen, title, message, on
                 <h2>{title}</h2>
                 <p>{message}</p>
                 <div className="modal-actions">
-                    <button className="btn-secondary" onClick={onCancel}>Cancel</button>
-                    <button className="btn-danger" onClick={onConfirm}>Confirm</button>
+                    <button className="btn-secondary" onClick={onCancel} disabled={isLoading}>Cancel</button>
+                    <button className="btn-danger" onClick={onConfirm} disabled={isLoading}>
+                        {isLoading ? 'Processing...' : 'Confirm'}
+                    </button>
                 </div>
             </div>
         </div>
