@@ -147,7 +147,7 @@ export const isDoubleBooked = async (
   try {
     const userId = (req as any).user.id;
     const { data, error, success } = doubleBookingCheckSchema.safeParse(
-      req.query,
+      req.params
     );
     if (!success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
