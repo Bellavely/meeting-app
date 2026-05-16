@@ -8,11 +8,9 @@ import {
   MeetingCard,
   MeetingManagementModals,
 } from "../../components";
-
 import { Meeting } from "../../types";
 import { toast } from "sonner";
 import { useMeetingActions } from "../../hooks/useMeetingActions";
-
 
 export const Dashboard: FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -42,8 +40,6 @@ export const Dashboard: FC = () => {
     fetchMeetings();
     fetchInvitations();
   });
-
-
 
   const fetchInvitations = async () => {
     try {
@@ -87,8 +83,7 @@ export const Dashboard: FC = () => {
     return mDate.toDateString() === date.toDateString();
   });
 
-
-  if (loading) return <div className="auth-container">Loading...</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>

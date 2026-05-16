@@ -65,8 +65,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         date: selectedDate
           ? selectedDate.toISOString().split("T")[0]
           : new Date().toISOString().split("T")[0],
-        startTime: "09:00",
-        endTime: "10:00",
+        startTime: "00:00",
+        endTime: "00:00",
         address: "",
         latitude: "",
         longitude: "",
@@ -149,24 +149,22 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   }, [participantSearch, currentUser?.email]);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
-      const dupMeeting = meetings.filter((meeting) => {
-        const mStart = new Date(meeting.startTime).getTime();
-        const mEnd = new Date(meeting.endTime).getTime();
-        const formStart = new Date(
-          `${formData.date}T${formData.startTime}`,
-        ).getTime();
-        const formEnd = new Date(
-          `${formData.date}T${formData.endTime}`,
-        ).getTime();
-        return (
-          formStart < mEnd &&
-          formEnd > mStart &&
-          meeting.id !== editingMeetingId
-        );
-      });
-      if (dupMeeting.length > 0) {
+      const { isDoubleBooked } = (
+        await api.get("/meetings/double-booking-check", {
+          params: {
+            startTime: new Date(
+              `${formData.date}T${formData.startTime}`,
+            ).toISOString(),
+            endTime: new Date(
+              `${formData.date}T${formData.endTime}`,
+            ).toISOString(),
+            excludeMeetingId: editingMeetingId,
+          },
+        })
+      ).data;
+      if (isDoubleBooked) {
         setIsBusy(true);
         return;
       }
@@ -383,9 +381,14 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             <button
               type="submit"
               className="btn-primary submit-btn"
-              disabled={isSubmitting || !!(formData.address && !formData.latitude)}
+              disabled={
+                isSubmitting || !!(formData.address && !formData.latitude)
+              }
               style={{
-                opacity: (isSubmitting || (formData.address && !formData.latitude)) ? 0.5 : 1,
+                opacity:
+                  isSubmitting || (formData.address && !formData.latitude)
+                    ? 0.5
+                    : 1,
               }}
             >
               {isSubmitting ? (
@@ -393,8 +396,10 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
                   <span className="spinner"></span>
                   Submitting...
                 </div>
+              ) : editingMeetingId ? (
+                "Update Meeting"
               ) : (
-                editingMeetingId ? "Update Meeting" : "Create Meeting"
+                "Create Meeting"
               )}
             </button>
           </form>

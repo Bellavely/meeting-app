@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api } from "../api/api";
-import { Meeting } from "../types";
+import { Meeting, Participant } from "../types";
 import { toast } from "sonner";
 
 export const useMeetingActions = (onSuccess?: () => void) => {
@@ -19,10 +19,12 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     address: "",
     latitude: "",
     longitude: "",
-    participants: [] as any[],
   });
+  const [editingParticipants, setEditingParticipants] = useState<Participant[]>(
+    [],
+  );
 
-  const startEditing = (meeting: Meeting & { participants?: any[] }) => {
+  const startEditing = (meeting: Meeting) => {
     const start = new Date(meeting.startTime);
     const end = new Date(meeting.endTime);
 
@@ -35,8 +37,8 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       address: meeting.address || "",
       latitude: meeting.latitude?.toString() || "",
       longitude: meeting.longitude?.toString() || "",
-      participants: meeting.participants || [],
     });
+    setEditingParticipants(meeting.participants || []);
 
     setEditingMeetingId(meeting.id);
     setShowCreateModal(true);
@@ -48,20 +50,20 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     setEditingData({
       title: "",
       description: "",
-      startTime: "09:00",
-      endTime: "10:00",
+      startTime: "00:00",
+      endTime: "00:00",
       date: defaultDate
         ? `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, "0")}-${String(defaultDate.getDate()).padStart(2, "0")}`
         : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
       address: "",
       latitude: "",
       longitude: "",
-      participants: [],
     });
+    setEditingParticipants([]);
     setShowCreateModal(true);
   };
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: Meeting) => {
     setIsSubmitting(true);
     try {
       let start = new Date();
@@ -107,7 +109,7 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       if (meetingId && participants) {
         try {
           await api.post(`/meetings/${meetingId}/participants/sync`, {
-            emails: participants.map((p: any) => p.email),
+            emails: participants.map((p) => p.email),
           });
         } catch (e) {
           console.error("Failed to sync participants", e);
@@ -147,6 +149,7 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     setIsDeleting(id);
     setSelectedMeeting(null);
   };
+  
 
   return {
     selectedMeeting,
