@@ -74,3 +74,17 @@ export const deleteMeeting = async (id: string, userId: string) => {
 
   await MeetingModel.deleteMeeting(id);
 };
+
+export const isDoubleBooked = async (
+  userId: string,
+  startTime: Date,
+  endTime: Date,
+  excludeMeetingId?: string,
+) => {
+  return await MeetingModel.isDoubleBooked(
+    userId,
+    startTime,
+    endTime,
+    excludeMeetingId,
+  );
+};

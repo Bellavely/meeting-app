@@ -4,6 +4,7 @@ import * as meetingService from "../../bl/meetingService";
 import {
   createMeetingSchema,
   deleteMeetingSchema,
+  doubleBookingCheckSchema,
   updateMeetingSchema,
 } from "../../validators";
 
@@ -134,9 +135,35 @@ export const deleteMeeting = async (
     await meetingService.deleteMeeting(data.id, userId);
     res.status(StatusCodes.NO_CONTENT).send();
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
+    next(error);
+  }
+};
+
+export const isDoubleBooked = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = (req as any).user.id;
+    const { data, error, success } = doubleBookingCheckSchema.safeParse(
+      req.body,
+    );
+    if (!success) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Validation failed",
+        errors: error.flatten().fieldErrors,
+      });
     }
+    res.status(StatusCodes.OK).json({
+      isDoubleBooked: await meetingService.isDoubleBooked(
+        userId,
+        new Date(data.startTime),
+        new Date(data.endTime),
+        data.excludeMeetingId ? data.excludeMeetingId : undefined,
+      ),
+    });
+  } catch (error: any) {
     next(error);
   }
 };
