@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as paricipantsService from "../../bl";
 import * as UserModel from "../../dal/models/User";
+import { participantEmailSchema } from "../../validators";
 
 export const inviteParticipant = async (
   req: Request,
@@ -104,16 +105,20 @@ export const syncMeetingParticipants = async (
 ) => {
   try {
     const meetingId = req.params.id as string;
-    const { emails } = req.body;
+    const { data, error, success } = participantEmailSchema.safeParse(req.body);
     const organizerId = (req as any).user.id;
 
-    if (!Array.isArray(emails)) {
+    if (!success) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Emails must be an array" });
+        .json({ message: error.flatten().fieldErrors });
     }
 
-    await paricipantsService.syncParticipants(meetingId, emails, organizerId);
+    await paricipantsService.syncParticipants(
+      meetingId,
+      data.emails,
+      organizerId,
+    );
     res
       .status(StatusCodes.OK)
       .json({ message: "Participants synced successfully" });

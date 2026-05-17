@@ -5,7 +5,8 @@ import {
   CreateMeetingInput,
   MeetingDTO,
   ParticipationStatus,
-} from "../types/meeting";
+  UpdateMeetingInput,
+} from "../types";
 
 export const createMeeting = async (
   meetingData: MeetingDTO,
