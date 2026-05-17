@@ -147,7 +147,7 @@ export const isDoubleBooked = async (
   try {
     const userId = (req as any).user.id;
     const { data, error, success } = doubleBookingCheckSchema.safeParse(
-      req.params
+      req.query,
     );
     if (!success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -160,7 +160,7 @@ export const isDoubleBooked = async (
         userId,
         new Date(data.startTime),
         new Date(data.endTime),
-        data.excludeMeetingId ? data.excludeMeetingId : undefined,
+        data.excludeMeetingId,
       ),
     });
   } catch (error: any) {
