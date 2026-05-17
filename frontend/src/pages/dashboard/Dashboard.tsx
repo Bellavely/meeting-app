@@ -4,13 +4,11 @@ import { Plus, Check, X, Bell } from "lucide-react";
 import { api } from "../../api/api";
 import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
-import {
-  MeetingCard,
-  MeetingManagementModals,
-} from "../../components";
+import { MeetingCard, MeetingManagementModals } from "../../components";
 import { Meeting } from "../../types";
 import { toast } from "sonner";
 import { useMeetingActions } from "../../hooks/useMeetingActions";
+import { MeetingInvitation } from "../../components";
 
 export const Dashboard: FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -45,6 +43,7 @@ export const Dashboard: FC = () => {
     try {
       const response = await api.get("/meetings/invitations");
       setInvitations(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Failed to fetch invitations", error);
     }
@@ -53,7 +52,9 @@ export const Dashboard: FC = () => {
   const fetchMeetings = async (month?: string) => {
     try {
       const queryMonth = month || viewedMonth;
-      const response = await api.get(`/meetings/my?month=${queryMonth}&limit=100`);
+      const response = await api.get(
+        `/meetings/my?month=${queryMonth}&limit=100`,
+      );
       setMeetings(response.data.meetings);
     } catch (error) {
       console.error("Failed to fetch meetings", error);
@@ -67,10 +68,15 @@ export const Dashboard: FC = () => {
     fetchInvitations();
   }, [viewedMonth]);
 
-  const handleInvitationResponse = async (meetingId: string, status: "ACCEPTED" | "DECLINED") => {
+  const handleInvitationResponse = async (
+    meetingId: string,
+    status: "ACCEPTED" | "DECLINED",
+  ) => {
     try {
       await api.put(`/meetings/${meetingId}/respond`, { status });
-      toast.success(status === "ACCEPTED" ? "Meeting accepted" : "Meeting declined");
+      toast.success(
+        status === "ACCEPTED" ? "Meeting accepted" : "Meeting declined",
+      );
       fetchInvitations();
       fetchMeetings();
     } catch (error) {
@@ -100,7 +106,6 @@ export const Dashboard: FC = () => {
             <Plus size={18} /> New Meeting
           </button>
         </div>
-
       </header>
 
       <div className="dashboard-grid">
@@ -135,49 +140,14 @@ export const Dashboard: FC = () => {
           </div>
 
           {invitations.length > 0 && (
-            <div className="invitations-section">
-              <div className="section-title">
-                <Bell size={18} className="notification-icon" />
-                <h3>Meeting Invitations</h3>
-                <span className="badge">{invitations.length}</span>
-              </div>
-              <div className="invitations-list">
-                {invitations.map((inv) => (
-                  <div key={inv.id} className="card invitation-card">
-                    <div className="invitation-info">
-                      <p className="invitation-text">
-                        <strong>{inv.organizerFirstName} {inv.organizerLastName} </strong> 
-                        invited you to: <strong>{inv.title}</strong>
-                      </p>
-                      <p className="invitation-time">
-                        {new Date(inv.startTime).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
-                      </p>
-                    </div>
-                    <div className="invitation-actions">
-                      <button 
-                        className="btn-icon accept" 
-                        onClick={() => handleInvitationResponse(inv.meetingId, 'ACCEPTED')}
-                        title="Accept"
-                      >
-                        <Check size={18} />
-                      </button>
-                      <button 
-                        className="btn-icon decline" 
-                        onClick={() => handleInvitationResponse(inv.meetingId, 'DECLINED')}
-                        title="Decline"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <MeetingInvitation
+              invitations={invitations}
+              handleInvitationResponse={handleInvitationResponse}
+            />
           )}
 
           <div
             className="meeting-grid"
-            style={{ gridTemplateColumns: "1fr", marginTop: 0 }}
           >
             {meetingsOnSelectedDate.length === 0 ? (
               <div className="empty-state">
@@ -212,7 +182,6 @@ export const Dashboard: FC = () => {
         meetings={meetings}
         isSubmitting={isSubmitting}
       />
-
     </>
   );
 };
