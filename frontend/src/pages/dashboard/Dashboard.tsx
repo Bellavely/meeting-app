@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import Calendar from "react-calendar";
-import { Plus, Check, X, Bell } from "lucide-react";
+import { Plus } from "lucide-react";
 import { api } from "../../api/api";
 import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
@@ -146,9 +146,7 @@ export const Dashboard: FC = () => {
             />
           )}
 
-          <div
-            className="meeting-grid"
-          >
+          <div className="meeting-grid">
             {meetingsOnSelectedDate.length === 0 ? (
               <div className="empty-state">
                 <p className="subtitle">No meetings for this day.</p>
