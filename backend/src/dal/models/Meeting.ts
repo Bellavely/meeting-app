@@ -37,6 +37,18 @@ export const createMeeting = async (
   return keysToCamel(result.rows[0]);
 };
 
+export const getMeetingsByCalendar = async (userId: string, month: string) => {
+  const sql = `SELECT DISTINCT m.* FROM meetings as m
+  LEFT JOIN Participants as p on  p.meeting_id = m.id
+  WHERE  m.organizer_id =$1 or (p.user_id = $1 AND p.status = 'ACCEPTED') 
+  and start_time >= to_date( $2, 'YYYY-MM')
+  AND start_time < to_date( $2, 'YYYY-MM') + INTERVAL '1 month'
+  ORDER BY m.start_time ASC`;
+  const result = await query(sql, [userId, month]);
+  const meetings = result.rows.map((row) => keysToCamel(row));
+  return { meetings };
+};
+
 export const getMeetingById = async (id: string): Promise<Meeting | null> => {
   const sql = `SELECT * FROM meetings WHERE id = $1`;
   const result = await query(sql, [id]);
@@ -47,9 +59,6 @@ export const getMeetingsByUserId = async (
   userId: string,
   filters: {
     search?: string;
-    month?: string;
-    startDate?: string;
-    endDate?: string;
     limit?: number;
     offset?: number;
   } = {},

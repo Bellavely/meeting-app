@@ -31,6 +31,26 @@ export const createMeeting = async (
   }
 };
 
+export const getMeetingsByCalendar = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = (req as any).user.id;
+    const month = req.query.month as string;
+    const { meetings } = await meetingService.getMeetingsByCalendar(
+      userId,
+      month,
+    );
+    res.status(StatusCodes.OK).json({
+      meetings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getMyMeetings = async (
   req: Request,
   res: Response,
@@ -38,13 +58,12 @@ export const getMyMeetings = async (
 ) => {
   try {
     const userId = (req as any).user.id;
-    const { month, page = 1, limit = 10 } = req.query as any;
+    const { page = 1, limit = 10 } = req.query as any;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     const { meetings, totalCount } = await meetingService.getMyMeetings(
       userId,
       {
-        month,
         limit: parseInt(limit),
         offset,
       },

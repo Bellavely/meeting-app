@@ -25,6 +25,10 @@ export const getMyMeetings = async (userId: string, filters: any = {}) => {
   return await MeetingModel.getMeetingsByUserId(userId, filters);
 };
 
+export const getMeetingsByCalendar = async (userId: string, month: string) => {
+  return await MeetingModel.getMeetingsByCalendar(userId, month);
+};
+
 export const respondToInvitation = async (
   meetingId: string,
   userId: string,

@@ -52,9 +52,7 @@ export const Dashboard: FC = () => {
   const fetchMeetings = async (month?: string) => {
     try {
       const queryMonth = month || viewedMonth;
-      const response = await api.get(
-        `/meetings/my?month=${queryMonth}&limit=100`,
-      );
+      const response = await api.get(`/meetings/calendar?month=${queryMonth}`);
       setMeetings(response.data.meetings);
     } catch (error) {
       console.error("Failed to fetch meetings", error);
