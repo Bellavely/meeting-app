@@ -1,4 +1,4 @@
-import { query } from "../../config/db";
+import { query, DBClient, pool } from "../../config/db";
 import { keysToCamel } from "../../utils";
 import {
   Meeting,
@@ -8,6 +8,7 @@ import {
 
 export const createMeeting = async (
   input: CreateMeetingInput,
+  client: DBClient = pool,
 ): Promise<Meeting> => {
   const {
     title,
@@ -24,7 +25,7 @@ export const createMeeting = async (
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
     `;
-  const result = await query(sql, [
+  const result = await client.query(sql, [
     title,
     description,
     startTime,
@@ -119,6 +120,7 @@ export const getMeetingsByUserId = async (
 export const updateMeeting = async (
   id: string,
   input: UpdateMeetingInput,
+  client: DBClient = pool,
 ): Promise<Meeting | null> => {
   const fields = Object.keys(input)
     .map((key, index) => {
@@ -139,7 +141,7 @@ export const updateMeeting = async (
         WHERE id = $1 
         RETURNING *
     `;
-  const result = await query(sql, [id, ...values]);
+  const result = await client.query(sql, [id, ...values]);
   return result.rows[0] ? keysToCamel(result.rows[0]) : null;
 };
 

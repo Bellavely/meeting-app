@@ -10,7 +10,6 @@ type MeetingManagementModalsProps = {
   showCreateModal: boolean;
   setShowCreateModal: (show: boolean) => void;
   editingData: any;
-  editingMeetingId: string | null;
   isDeleting: string | null;
   setIsDeleting: (id: string | null) => void;
   startEditing: (meeting: Meeting & { participants?: any[] }) => void;
@@ -27,7 +26,6 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
   showCreateModal,
   setShowCreateModal,
   editingData,
-  editingMeetingId,
   isDeleting,
   setIsDeleting,
   startEditing,
@@ -37,7 +35,6 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
   meetings,
   isSubmitting,
 }) => {
-
   return (
     <>
       <CreateMeetingModal
@@ -45,7 +42,6 @@ export const MeetingManagementModals: FC<MeetingManagementModalsProps> = ({
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleFormSubmit}
         initialData={editingData}
-        editingMeetingId={editingMeetingId}
         meetings={meetings}
         isSubmitting={isSubmitting}
       />

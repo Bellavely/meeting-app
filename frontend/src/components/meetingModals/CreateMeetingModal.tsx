@@ -10,9 +10,8 @@ type CreateMeetingModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: any) => void;
-  initialData?: any;
+  initialData?: Meeting;
   selectedDate?: Date;
-  editingMeetingId?: string | null;
   meetings: Meeting[];
   isSubmitting?: boolean;
 };
@@ -23,20 +22,20 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   onSubmit,
   initialData,
   selectedDate = new Date(),
-  editingMeetingId,
   meetings,
   isSubmitting = false,
 }) => {
   const { user: currentUser } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Meeting>({
     title: "",
     description: "",
     date: "",
     startTime: "00:00",
     endTime: "00:00",
     address: "",
-    latitude: "",
-    longitude: "",
+    latitude: 0,
+    longitude: 0,
+    participants: [],
   });
 
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -52,7 +51,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    if (editingMeetingId && initialData) {
+    if (initialData) {
       setFormData(initialData);
       if (initialData.address) {
         setIsInternalUpdate(true);
@@ -68,13 +67,12 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         startTime: "00:00",
         endTime: "00:00",
         address: "",
-        latitude: "",
-        longitude: "",
+        latitude: 0,
+        longitude: 0,
       });
     }
     setSuggestions([]);
-
-    if (editingMeetingId && initialData && initialData.participants) {
+    if (initialData?.participants) {
       setParticipants(
         initialData.participants.map((p: any) => ({
           ...(p.user || p),
@@ -84,7 +82,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     } else {
       setParticipants([]);
     }
-  }, [isOpen, editingMeetingId, initialData]);
+  }, [isOpen, initialData]);
 
   const searchAddress = async (query: string) => {
     if (query.length < 3) {
@@ -160,7 +158,8 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
             endTime: new Date(
               `${formData.date}T${formData.endTime}`,
             ).toISOString(),
-            excludeMeetingId: editingMeetingId,
+            excludeMeetingId:
+              initialData?.id?.trim() === "" ? null : initialData?.id,
           },
         })
       ).data;
@@ -170,7 +169,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       }
       onSubmit({ ...formData, participants });
     },
-    [onSubmit, formData, participants, meetings, editingMeetingId],
+    [onSubmit, formData, participants, meetings],
   );
 
   if (!isOpen) return null;
@@ -181,7 +180,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         <div className="card modal-content create-modal">
           <div className="modal-header">
             <div>
-              <h2>{editingMeetingId ? "Edit Meeting" : "Schedule Meeting"}</h2>
+              <h2>{initialData?.id ? "Edit Meeting" : "Schedule Meeting"}</h2>
             </div>
             <button className="close-btn" onClick={onClose}>
               <X size={24} />
@@ -257,8 +256,9 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
                   setFormData({
                     ...formData,
                     address: e.target.value,
-                    latitude: "",
-                    longitude: "",
+                    latitude: 0,
+                    longitude: 0,
+                    participants: [],
                   })
                 }
                 autoComplete="off"
@@ -396,7 +396,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
                   <span className="spinner"></span>
                   Submitting...
                 </div>
-              ) : editingMeetingId ? (
+              ) : initialData?.id ? (
                 "Update Meeting"
               ) : (
                 "Create Meeting"
@@ -408,7 +408,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       <ConfirmModal
         isOpen={isBusy}
         title="Confirm Scheduling Conflict"
-        message={`Are you sure you want to ${editingMeetingId ? "edit" : "create"} this meeting? 
+        message={`Are you sure you want to ${initialData ? "edit" : "create"} this meeting? 
           You already have another meeting scheduled at this same time. `}
         onConfirm={() => {
           onSubmit({ ...formData, participants });

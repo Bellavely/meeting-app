@@ -1,17 +1,18 @@
-import { query } from "../../config/db";
+import { query, DBClient, pool } from "../../config/db";
 import { keysToCamel } from "../../utils";
 import { Participant, ParticipationStatus } from "../../types/meeting";
 
 export const addParticipant = async (
   meetingId: string,
   userId: string,
+  client: DBClient = pool,
 ): Promise<Participant> => {
   const sql = `
         INSERT INTO participants (meeting_id, user_id, status)
         VALUES ($1, $2, $3)
         RETURNING *
     `;
-  const result = await query(sql, [
+  const result = await client.query(sql, [
     meetingId,
     userId,
     ParticipationStatus.PENDING,
@@ -21,6 +22,7 @@ export const addParticipant = async (
 
 export const getMeetingParticipants = async (
   meetingId: string,
+  client: DBClient = pool,
 ): Promise<Participant[]> => {
   const sql = `
         SELECT p.*, u.first_name, u.last_name, u.email
@@ -28,7 +30,7 @@ export const getMeetingParticipants = async (
         JOIN users u ON p.user_id = u.id
         WHERE p.meeting_id = $1
     `;
-  const result = await query(sql, [meetingId]);
+  const result = await client.query(sql, [meetingId]);
   return result.rows.map((row) => {
     const camelRow = keysToCamel(row);
     return {
@@ -73,8 +75,9 @@ export const getUserInvitations = async (userId: string): Promise<any[]> => {
 export const removeParticipant = async (
   meetingId: string,
   userId: string,
+  client: DBClient = pool,
 ): Promise<boolean> => {
   const sql = `DELETE FROM participants WHERE meeting_id = $1 AND user_id = $2`;
-  const result = await query(sql, [meetingId, userId]);
+  const result = await client.query(sql, [meetingId, userId]);
   return (result.rowCount ?? 0) > 0;
 };

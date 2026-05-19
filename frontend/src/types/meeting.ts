@@ -1,5 +1,5 @@
 export type Meeting = {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   startTime: string;
@@ -13,6 +13,8 @@ export type Meeting = {
 };
 
 export type Participant = {
+  id?: string;
+  userId?: string;
   email: string;
   firstName: string;
   lastName: string;

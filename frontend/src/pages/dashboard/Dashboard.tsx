@@ -24,7 +24,6 @@ export const Dashboard: FC = () => {
     setSelectedMeeting,
     showCreateModal,
     editingData,
-    editingMeetingId,
     isDeleting,
     startEditing,
     openCreateModal,
@@ -43,7 +42,6 @@ export const Dashboard: FC = () => {
     try {
       const response = await api.get("/meetings/invitations");
       setInvitations(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error("Failed to fetch invitations", error);
     }
@@ -168,7 +166,6 @@ export const Dashboard: FC = () => {
         showCreateModal={showCreateModal}
         setShowCreateModal={setShowCreateModal}
         editingData={editingData}
-        editingMeetingId={editingMeetingId}
         isDeleting={isDeleting}
         setIsDeleting={setIsDeleting}
         startEditing={startEditing}

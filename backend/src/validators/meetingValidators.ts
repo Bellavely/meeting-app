@@ -22,6 +22,7 @@ export const createMeetingSchema = z
       .optional(),
     latitude: z.number().min(-90).max(90).optional(),
     longitude: z.number().min(-180).max(180).optional(),
+    participants: z.array(z.string().uuid()).optional(),
   })
   .refine((data) => new Date(data.endTime) > new Date(data.startTime), {
     message: "End time must be after start time",
@@ -37,6 +38,7 @@ export const updateMeetingSchema = z
     address: z.string().max(500).optional(),
     latitude: z.number().min(-90).max(90).optional(),
     longitude: z.number().min(-180).max(180).optional(),
+    participants: z.array(z.string().uuid()).optional(),
   })
   .refine(
     (data) => {

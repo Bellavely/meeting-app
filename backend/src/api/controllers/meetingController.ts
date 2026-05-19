@@ -129,6 +129,7 @@ export const updateMeeting = async (
       });
     }
 
+
     const updated = await meetingService.updateMeeting(id, data, userId);
     res.status(StatusCodes.OK).json(updated);
   } catch (error: any) {
