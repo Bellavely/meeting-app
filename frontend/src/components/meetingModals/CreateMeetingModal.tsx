@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import "./Modal.css";
 import { ConfirmModal } from "../confirmModal";
 import { Meeting } from "../../types";
+import { toast } from "sonner";
 
 type CreateMeetingModalProps = {
   isOpen: boolean;
@@ -239,9 +240,13 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
                 <input
                   type="time"
                   value={formData.endTime}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endTime: e.target.value })
-                  }
+                  onChange={(e) => {
+                    if (e.target.value <= formData.startTime) {
+                      toast.warning("End time must be later than start time.");
+                    } else {
+                      setFormData({ ...formData, endTime: e.target.value });
+                    }
+                  }}
                   required
                 />
               </div>

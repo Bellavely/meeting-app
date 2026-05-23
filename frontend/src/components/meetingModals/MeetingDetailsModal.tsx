@@ -151,7 +151,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
               </button>
               <button
                 className="btn-danger"
-                onClick={() => onDelete(meeting.id)}
+                onClick={() => onDelete(meeting.id!)}
               >
                 Delete
               </button>

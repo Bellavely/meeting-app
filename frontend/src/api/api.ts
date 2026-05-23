@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "sonner";
 
 let accessToken: string | null = null;
 const serverUrl = import.meta.env.VITE_BACKEND_URL;
@@ -51,6 +52,9 @@ api.interceptors.response.use(
         }
         return Promise.reject(refreshError);
       }
+    }
+    if (error.response?.status === 400) {
+      toast.error(`Somthing went wrong`);
     }
     return Promise.reject(error);
   },
