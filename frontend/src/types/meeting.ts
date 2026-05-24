@@ -9,6 +9,8 @@ export type Meeting = {
   longitude?: number;
   date?: string;
   organizerId?: string;
+  organizerFirstName?: string;
+  organizerLastName?: string;
   participants?: Participant[];
 };
 

@@ -18,7 +18,6 @@ export const History: FC = () => {
     setSelectedMeeting,
     showCreateModal,
     editingData,
-    editingMeetingId,
     isDeleting,
     startEditing,
     isSubmitting,
@@ -136,7 +135,6 @@ export const History: FC = () => {
         showCreateModal={showCreateModal}
         setShowCreateModal={setShowCreateModal}
         editingData={editingData}
-        editingMeetingId={editingMeetingId}
         isDeleting={isDeleting}
         setIsDeleting={setIsDeleting}
         startEditing={startEditing}

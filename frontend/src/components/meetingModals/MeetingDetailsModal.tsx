@@ -21,6 +21,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
   const { user: currentUser } = useAuth();
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  console.log(meeting);
 
   const isOrganizer = currentUser?.id === meeting?.organizerId;
 
@@ -75,6 +76,15 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
           </button>
         </div>
 
+        <div>
+          Organizer :
+          {isOrganizer
+            ? " me"
+            : " " +
+              meeting.organizerFirstName +
+              " " +
+              meeting.organizerLastName}
+        </div>
         <div className="modal-date">
           {new Date(meeting.startTime).toLocaleDateString(undefined, {
             year: "numeric",

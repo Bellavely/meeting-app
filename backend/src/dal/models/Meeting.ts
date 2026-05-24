@@ -39,11 +39,14 @@ export const createMeeting = async (
 };
 
 export const getMeetingsByCalendar = async (userId: string, month: string) => {
-  const sql = `SELECT DISTINCT m.* FROM meetings as m
+  const sql = `SELECT DISTINCT m.id , m.title, m.description , m.start_time , m.end_time, m.address,m.latitude, 
+  m.longitude , m.organizer_id ,u.first_name as organizer_first_name , u.last_name as organizer_last_name 
+  FROM meetings as m
   LEFT JOIN Participants as p on  p.meeting_id = m.id
-  WHERE  m.organizer_id =$1 or (p.user_id = $1 AND p.status = 'ACCEPTED') 
-  and start_time >= to_date( $2, 'YYYY-MM')
-  AND start_time < to_date( $2, 'YYYY-MM') + INTERVAL '1 month'
+  JOIN Users as u on u.id = m.organizer_id
+  WHERE  m.organizer_id = $1 or (p.user_id = $1 AND p.status = 'ACCEPTED') 
+  and start_time >= to_date($2, 'YYYY-MM')
+  AND start_time < to_date( $2 , 'YYYY-MM') + INTERVAL '1 month'
   ORDER BY m.start_time ASC`;
   const result = await query(sql, [userId, month]);
   const meetings = result.rows.map((row) => keysToCamel(row));
@@ -92,9 +95,11 @@ export const getMeetingsByUserId = async (
 
   // Get paginated results
   let sql = `
-    SELECT DISTINCT m.* 
+    SELECT DISTINCT m.id , m.title, m.description , m.start_time , m.end_time, m.address,m.latitude, 
+    m.longitude , m.organizer_id ,u.first_name as organizer_first_name , u.last_name as organizer_last_name 
     FROM meetings m
     LEFT JOIN participants p ON m.id = p.meeting_id
+    JOIN users as u ON u.id = m.organizer_id
     WHERE ${whereSql} 
     ORDER BY m.start_time ASC
   `;
