@@ -3,20 +3,6 @@
   min-height: 100vh;
 }
 
-.global-sidebar {
-  width: 320px;
-  min-width: 320px;
-  height: 100vh;
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  z-index: 50;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .main-content {
   flex-grow: 1;
   padding: 2.5rem;
@@ -25,10 +11,8 @@
   height: 100vh;
 }
 
-
 @media (max-width: 1024px) {
   .main-content {
-    margin-left: 80px; /* Reduced margin for collapsed or smaller sidebar */
     padding: 1.5rem;
   }
 }

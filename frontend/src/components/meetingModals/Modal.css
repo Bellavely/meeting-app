@@ -58,6 +58,10 @@
   margin-bottom: 2rem;
 }
 
+.modal-organizer {
+  padding-bottom: 1rem;
+}
+
 .location-info {
   display: flex;
   align-items: center;
@@ -87,6 +91,10 @@
 }
 .create-modal {
   max-width: 550px;
+}
+
+.modal-time {
+  padding-bottom: 1rem;
 }
 
 .modal-date {

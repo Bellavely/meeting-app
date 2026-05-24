@@ -4,6 +4,7 @@ import * as meetingService from "../../bl/meetingService";
 import {
   createMeetingSchema,
   deleteMeetingSchema,
+  doubleBookingCheckSchema,
   updateMeetingSchema,
 } from "../../validators";
 
@@ -30,6 +31,26 @@ export const createMeeting = async (
   }
 };
 
+export const getMeetingsByCalendar = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = (req as any).user.id;
+    const month = req.query.month as string;
+    const { meetings } = await meetingService.getMeetingsByCalendar(
+      userId,
+      month,
+    );
+    res.status(StatusCodes.OK).json({
+      meetings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getMyMeetings = async (
   req: Request,
   res: Response,
@@ -37,13 +58,12 @@ export const getMyMeetings = async (
 ) => {
   try {
     const userId = (req as any).user.id;
-    const { month, page = 1, limit = 10 } = req.query as any;
+    const { page = 1, limit = 10 } = req.query as any;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     const { meetings, totalCount } = await meetingService.getMyMeetings(
       userId,
       {
-        month,
         limit: parseInt(limit),
         offset,
       },
@@ -109,6 +129,7 @@ export const updateMeeting = async (
       });
     }
 
+
     const updated = await meetingService.updateMeeting(id, data, userId);
     res.status(StatusCodes.OK).json(updated);
   } catch (error: any) {
@@ -134,9 +155,35 @@ export const deleteMeeting = async (
     await meetingService.deleteMeeting(data.id, userId);
     res.status(StatusCodes.NO_CONTENT).send();
   } catch (error: any) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
+    next(error);
+  }
+};
+
+export const isDoubleBooked = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = (req as any).user.id;
+    const { data, error, success } = doubleBookingCheckSchema.safeParse(
+      req.query,
+    );
+    if (!success) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: "Validation failed",
+        errors: error.flatten().fieldErrors,
+      });
     }
+    res.status(StatusCodes.OK).json({
+      isDoubleBooked: await meetingService.isDoubleBooked(
+        userId,
+        new Date(data.startTime),
+        new Date(data.endTime),
+        data.excludeMeetingId,
+      ),
+    });
+  } catch (error: any) {
     next(error);
   }
 };

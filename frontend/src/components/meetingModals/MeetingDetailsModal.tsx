@@ -21,6 +21,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
   const { user: currentUser } = useAuth();
   const [participants, setParticipants] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  console.log(meeting);
 
   const isOrganizer = currentUser?.id === meeting?.organizerId;
 
@@ -95,6 +96,16 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
           })}
         </div>
 
+        <div className="modal-organizer">
+          Organizer :
+          {isOrganizer
+            ? " me"
+            : " " +
+              meeting.organizerFirstName +
+              " " +
+              meeting.organizerLastName}
+        </div>
+
         <p className="modal-description">{meeting.description}</p>
 
         <div className="location-info">
@@ -151,7 +162,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
               </button>
               <button
                 className="btn-danger"
-                onClick={() => onDelete(meeting.id)}
+                onClick={() => onDelete(meeting.id!)}
               >
                 Delete
               </button>

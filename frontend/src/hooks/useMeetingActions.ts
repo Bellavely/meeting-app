@@ -6,62 +6,59 @@ import { toast } from "sonner";
 export const useMeetingActions = (onSuccess?: () => void) => {
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [editingData, setEditingData] = useState({
+  const [editingData, setEditingData] = useState<Meeting>({
     title: "",
     description: "",
     date: "",
     startTime: "00:00",
     endTime: "00:00",
     address: "",
-    latitude: "",
-    longitude: "",
-    participants: [] as any[],
+    participants: [],
   });
 
-  const startEditing = (meeting: Meeting & { participants?: any[] }) => {
+  const startEditing = (meeting: Meeting) => {
     const start = new Date(meeting.startTime);
     const end = new Date(meeting.endTime);
 
     setEditingData({
+      id: meeting.id,
       title: meeting.title,
       description: meeting.description || "",
       startTime: `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`,
       endTime: `${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`,
       date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`,
       address: meeting.address || "",
-      latitude: meeting.latitude?.toString() || "",
-      longitude: meeting.longitude?.toString() || "",
+      latitude: Number(meeting.latitude?.toString()),
+      longitude: Number(meeting.longitude?.toString()),
       participants: meeting.participants || [],
     });
 
-    setEditingMeetingId(meeting.id);
     setShowCreateModal(true);
     setSelectedMeeting(null);
   };
 
   const openCreateModal = (defaultDate?: Date) => {
-    setEditingMeetingId(null);
     setEditingData({
+      id: "",
       title: "",
       description: "",
-      startTime: "09:00",
-      endTime: "10:00",
+      startTime: "00:00",
+      endTime: "00:00",
       date: defaultDate
         ? `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, "0")}-${String(defaultDate.getDate()).padStart(2, "0")}`
         : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
       address: "",
-      latitude: "",
-      longitude: "",
+      latitude: 0,
+      longitude: 0,
       participants: [],
     });
     setShowCreateModal(true);
   };
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: Meeting) => {
     setIsSubmitting(true);
     try {
       let start = new Date();
@@ -91,31 +88,20 @@ export const useMeetingActions = (onSuccess?: () => void) => {
         longitude: formData.longitude
           ? parseFloat(String(formData.longitude))
           : undefined,
+        participants: participants
+          ? participants.filter((p) => p.id).map((p) => p.id)
+          : undefined,
       };
 
-      let meetingId = editingMeetingId;
-      if (editingMeetingId) {
-        await api.put(`/meetings/${editingMeetingId}`, payload);
+      if (editingData.id) {
+        await api.put(`/meetings/${editingData.id}`, payload);
         toast.success("Meeting updated");
       } else {
-        const response = await api.post("/meetings", payload);
-        meetingId = response.data.id;
+        await api.post("/meetings", payload);
         toast.success("Meeting created");
       }
 
-      // Sync participants
-      if (meetingId && participants) {
-        try {
-          await api.post(`/meetings/${meetingId}/participants/sync`, {
-            emails: participants.map((p: any) => p.email),
-          });
-        } catch (e) {
-          console.error("Failed to sync participants", e);
-        }
-      }
-
       setShowCreateModal(false);
-      setEditingMeetingId(null);
       if (onSuccess) onSuccess();
     } catch (error: any) {
       toast.error(
@@ -153,7 +139,6 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     setSelectedMeeting,
     showCreateModal,
     setShowCreateModal,
-    editingMeetingId,
     editingData,
     isDeleting,
     setIsDeleting,

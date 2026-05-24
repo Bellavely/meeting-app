@@ -1,6 +1,6 @@
 import { FormEvent, FC, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import   "./Login.css";
+import "./Login.css";
 import { LogIn } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../api/api";
@@ -26,25 +26,12 @@ export const Login: FC = () => {
   return (
     <div className="auth-container">
       <div className="card">
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div
-            style={{
-              background: "var(--primary)",
-              width: "3rem",
-              height: "3rem",
-              borderRadius: "1rem",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: "1rem",
-            }}
-          >
+        <div className="card-header">
+          <div className="login-icon">
             <LogIn color="white" size={24} />
           </div>
           <h1>Welcome Back</h1>
-          <p className="text-muted">
-            Login to manage your meetings
-          </p>
+          <p className="text-muted">Login to manage your meetings</p>
         </div>
         <form className="login-form" onSubmit={handleSubmit}>
           <input

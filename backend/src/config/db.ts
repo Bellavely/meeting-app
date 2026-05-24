@@ -1,7 +1,9 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+export type DBClient = Pool | PoolClient;
 
 export const pool = new Pool({
   user: process.env.DB_USER,
@@ -13,3 +15,4 @@ export const pool = new Pool({
 });
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
+export const getClient = () => pool.connect();
