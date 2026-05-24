@@ -28,6 +28,10 @@ api.interceptors.response.use(
       originalRequest.url?.includes("/auth/login") ||
       originalRequest.url?.includes("/auth/register") ||
       originalRequest.url?.includes("/auth/refresh");
+    if (error.response.status === 400) {
+      (toast.error(`Somthing went wrong ${error.response.data.message}`),
+        { id: "api-400-error" });
+    }
 
     if (
       error.response?.status === 401 &&
@@ -53,9 +57,14 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    if (error.response?.status === 400) {
-      toast.error(`Somthing went wrong`);
+
+    if (error.response.status === 403) {
+      setAccessToken(null);
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
+
     return Promise.reject(error);
   },
 );

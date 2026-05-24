@@ -79,7 +79,7 @@ export const refresh = async (
 
     if (!refreshToken) {
       return res
-        .status(StatusCodes.BAD_REQUEST)
+        .status(StatusCodes.FORBIDDEN)
         .json({ message: "Refresh token is required" });
     }
 
