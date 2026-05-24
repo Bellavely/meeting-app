@@ -76,15 +76,6 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
           </button>
         </div>
 
-        <div>
-          Organizer :
-          {isOrganizer
-            ? " me"
-            : " " +
-              meeting.organizerFirstName +
-              " " +
-              meeting.organizerLastName}
-        </div>
         <div className="modal-date">
           {new Date(meeting.startTime).toLocaleDateString(undefined, {
             year: "numeric",
@@ -103,6 +94,16 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
             hour: "2-digit",
             minute: "2-digit",
           })}
+        </div>
+
+        <div className="modal-organizer">
+          Organizer :
+          {isOrganizer
+            ? " me"
+            : " " +
+              meeting.organizerFirstName +
+              " " +
+              meeting.organizerLastName}
         </div>
 
         <p className="modal-description">{meeting.description}</p>
