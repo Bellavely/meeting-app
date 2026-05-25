@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as paricipantsService from "../../bl";
+import * as meetingService from "../../bl/meetingService";
 import * as UserModel from "../../dal/models/User";
 import { participantEmailSchema } from "../../validators";
+import { Participant } from "../../types";
 
 export const inviteParticipant = async (
   req: Request,
@@ -13,11 +15,19 @@ export const inviteParticipant = async (
     const meetingId = req.params.id as string;
     const { email } = req.body;
     const organizerId = (req as any).user.id;
-    const participant = await paricipantsService.inviteParticipant(
+    const participant = (await paricipantsService.inviteParticipant(
       meetingId,
       email,
       organizerId,
-    );
+    )) as Participant;
+
+    const io = req.app.get("io");
+    if (io) {
+      const meeting = await meetingService.getMeetingById(meetingId);
+      if (meeting) {
+        io.to(participant.userId).emit("refetch_meetings");
+      }
+    }
 
     res.status(StatusCodes.CREATED).json(participant);
   } catch (error: any) {
@@ -114,11 +124,27 @@ export const syncMeetingParticipants = async (
         .json({ message: error.flatten().fieldErrors });
     }
 
-    await paricipantsService.syncParticipants(
-      meetingId,
-      data.emails,
-      organizerId,
-    );
+    const { addedUserIds, removedUsers } =
+      await paricipantsService.syncParticipants(
+        meetingId,
+        data.emails,
+        organizerId,
+      );
+
+    const io = req.app.get("io");
+
+    if (io && addedUserIds.length > 0) {
+      for (const userId of addedUserIds) {
+        io.to(userId).emit("refetch_meetings");
+      }
+    }
+
+    if (io && removedUsers.length > 0) {
+      for (const userId of removedUsers) {
+        io.to(userId).emit("refetch_meetings");
+      }
+    }
+
     res
       .status(StatusCodes.OK)
       .json({ message: "Participants synced successfully" });

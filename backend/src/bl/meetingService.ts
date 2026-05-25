@@ -3,14 +3,7 @@ import * as UserModel from "../dal/models";
 import * as ParticipantModel from "../dal/models/Participant";
 import { getClient } from "../config/db";
 
-import {
-  CreateMeetingInput,
-  Meeting,
-  MeetingDTO,
-  Participant,
-  ParticipationStatus,
-  UpdateMeetingInput,
-} from "../types";
+import { CreateMeetingInput, MeetingDTO, ParticipationStatus } from "../types";
 
 export const createMeeting = async (
   meetingData: MeetingDTO,
@@ -86,7 +79,7 @@ export const updateMeeting = async (
   if (existing.organizerId !== userId) {
     throw { status: 403, message: "Not authorized to update this meeting" };
   }
-  
+
   const { participants, ...updateData } = meetingData as any;
   if (updateData.startTime) {
     updateData.startTime = new Date(updateData.startTime);
@@ -94,29 +87,44 @@ export const updateMeeting = async (
   if (updateData.endTime) {
     updateData.endTime = new Date(updateData.endTime);
   }
-  
+
   const client = await getClient();
   try {
     await client.query("BEGIN");
-    const updatedMeeting = await MeetingModel.updateMeeting(id, updateData, client);
+    const updatedMeeting = await MeetingModel.updateMeeting(
+      id,
+      updateData,
+      client,
+    );
 
+    const addedParticipantIds: string[] = [];
+    const removeParticipantsIds: string[] = [];
     if (participants !== undefined) {
-      const currentParticipants = await ParticipantModel.getMeetingParticipants(id, client);
-      const currentParticipantIds = currentParticipants.map(p => p.userId);
+      const currentParticipants = await ParticipantModel.getMeetingParticipants(
+        id,
+        client,
+      );
+      const currentParticipantIds = currentParticipants.map((p) => p.userId);
       const newParticipantIds = participants as string[];
-      
-      const toRemove = currentParticipantIds.filter(pid => !newParticipantIds.includes(pid));
-      const toAdd = newParticipantIds.filter(pid => !currentParticipantIds.includes(pid));
+
+      const toRemove = currentParticipantIds.filter(
+        (pid) => !newParticipantIds.includes(pid),
+      );
+      const toAdd = newParticipantIds.filter(
+        (pid) => !currentParticipantIds.includes(pid),
+      );
 
       for (const pid of toAdd) {
         await ParticipantModel.addParticipant(id, pid, client);
+        addedParticipantIds.push(pid);
       }
       for (const pid of toRemove) {
         await ParticipantModel.removeParticipant(id, pid, client);
+        removeParticipantsIds.push(pid);
       }
     }
     await client.query("COMMIT");
-    return updatedMeeting;
+    return { updatedMeeting, addedParticipantIds, removeParticipantsIds };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -150,4 +158,8 @@ export const isDoubleBooked = async (
     endTime,
     excludeMeetingId,
   );
+};
+
+export const getMeetingById = async (id: string) => {
+  return await MeetingModel.getMeetingById(id);
 };

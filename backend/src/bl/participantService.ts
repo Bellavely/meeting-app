@@ -47,9 +47,16 @@ export const syncParticipants = async (
     (p) => p.user && !lowerCaseEmails.includes(p.user.email.toLowerCase()),
   );
 
+  const addedUserIds: string[] = [];
+  const removedUsers: string[] = [];
   for (const email of toAdd) {
     try {
-      await inviteParticipant(meetingId, email, organizerId);
+      const participant = await inviteParticipant(
+        meetingId,
+        email,
+        organizerId,
+      );
+      addedUserIds.push(participant.userId);
     } catch (e) {
       console.error(`Sync: Failed to invite ${email}`, e);
     }
@@ -57,7 +64,10 @@ export const syncParticipants = async (
 
   for (const p of toRemove) {
     await ParticipantModel.removeParticipant(meetingId, p.userId);
+    removedUsers.push(p.userId)
   }
+
+  return { addedUserIds , removedUsers };
 };
 
 export const uninviteParticipant = async (
