@@ -7,6 +7,7 @@ import {
   doubleBookingCheckSchema,
   updateMeetingSchema,
 } from "../../validators";
+import { notifyParticipantsToRefetch } from "../../utils";
 
 export const createMeeting = async (
   req: Request,
@@ -25,12 +26,7 @@ export const createMeeting = async (
     const io = req.app.get("io");
     const userId = (req as any).user.id;
     const meeting = await meetingService.createMeeting(data, userId);
-
-    if (data.participants && data.participants.length > 0 && io) {
-      for (const participantId of data.participants) {
-        io.to(participantId).emit("refetch_meetings");
-      }
-    }
+    notifyParticipantsToRefetch(io, data.participants);
 
     res.status(StatusCodes.CREATED).json(meeting);
   } catch (error) {
@@ -140,17 +136,8 @@ export const updateMeeting = async (
       await meetingService.updateMeeting(id, data, userId);
 
     const io = req.app.get("io");
-    if (io && addedParticipantIds.length > 0 && updatedMeeting) {
-      for (const participantId of addedParticipantIds) {
-        io.to(participantId).emit("refetch_meetings");
-      }
-    }
-
-    if (io && removeParticipantsIds.length > 0 && removeParticipantsIds) {
-      for (const participantId of removeParticipantsIds) {
-        io.to(participantId).emit("refetch_meetings");
-      }
-    }
+    notifyParticipantsToRefetch(io, addedParticipantIds);
+    notifyParticipantsToRefetch(io, removeParticipantsIds);
 
     res.status(StatusCodes.OK).json(updatedMeeting);
   } catch (error: any) {

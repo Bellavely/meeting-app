@@ -39,7 +39,6 @@ io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
 
   if (!token) {
-    console.log("Socket connection rejected: No token provided");
     return next(new Error("Authentication error: No token provided"));
   }
 
@@ -51,7 +50,6 @@ io.use((socket, next) => {
     (socket as any).userId = decoded.id;
     next();
   } catch (err) {
-    console.log("Socket connection rejected: Invalid token");
     return next(new Error("Authentication error: Invalid token"));
   }
 });
