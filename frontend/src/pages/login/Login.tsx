@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import "./Login.css";
 import { LogIn } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { api } from "../../api/api";
+import { api } from "../../services";
 
 export const Login: FC = () => {
   const [email, setEmail] = useState("");

@@ -1,14 +1,15 @@
 import { FC, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import { Plus } from "lucide-react";
-import { api } from "../../api/api";
+import { api } from "../../services/api";
 import "react-calendar/dist/Calendar.css";
 import "./Dashboard.css";
 import { MeetingCard, MeetingManagementModals } from "../../components";
-import { Meeting } from "../../types";
+import {  Meeting } from "../../types";
 import { toast } from "sonner";
 import { useMeetingActions } from "../../hooks/useMeetingActions";
 import { MeetingInvitation } from "../../components";
+import { socket } from "../../services";
 
 export const Dashboard: FC = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -62,6 +63,12 @@ export const Dashboard: FC = () => {
   useEffect(() => {
     fetchMeetings();
     fetchInvitations();
+    socket.on("refetch_meetings", () => {
+      fetchInvitations();
+    });
+    return () => {
+      socket.off("refetch_meetings");
+    };
   }, [viewedMonth]);
 
   const handleInvitationResponse = async (

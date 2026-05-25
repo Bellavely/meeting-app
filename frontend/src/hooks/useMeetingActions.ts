@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "../api/api";
+import { api } from "../services";
 import { Meeting } from "../types";
 import { toast } from "sonner";
 
