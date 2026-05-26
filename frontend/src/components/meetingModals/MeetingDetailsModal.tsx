@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
 import { MapPin, X, Users } from "lucide-react";
 import { api } from "../../services";
-import { Meeting } from "../../types";
+import { Meeting, Participant } from "../../types";
 import { useAuth } from "../../context";
 import "./Modal.css";
 
@@ -19,7 +19,7 @@ export const MeetingDetailsModal: FC<MeetingDetailsModalProps> = ({
   onDelete,
 }) => {
   const { user: currentUser } = useAuth();
-  const [participants, setParticipants] = useState<any[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(false);
 
   const isOrganizer = currentUser?.id === meeting?.organizerId;
