@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context";
 import "./index.css";
 import { Dashboard, Login, Register, Profile, History } from "./pages";
 import { MainLayout } from "./components";
@@ -25,7 +25,7 @@ const App: FC = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
+
           <Route
             element={
               <PrivateRoute>
@@ -38,7 +38,6 @@ const App: FC = () => {
             <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
-
       </Router>
     </AuthProvider>
   );

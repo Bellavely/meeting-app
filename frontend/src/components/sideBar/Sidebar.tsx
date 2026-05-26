@@ -1,9 +1,13 @@
 import { FC } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LogOut, LayoutDashboard, CalendarDays, History as HistoryIcon } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import {
+  LogOut,
+  LayoutDashboard,
+  CalendarDays,
+  History as HistoryIcon,
+} from "lucide-react";
 import "./Sidebar.css";
-
+import { useAuth } from "../../context";
 
 export const Sidebar: FC = () => {
   const { user, logout } = useAuth();
@@ -16,7 +20,7 @@ export const Sidebar: FC = () => {
           <CalendarDays size={28} className="brand-icon" />
           <span>MeetSync</span>
         </div>
-        <div className="user-greeting" onClick={()=> navigate('/profile')}>
+        <div className="user-greeting" onClick={() => navigate("/profile")}>
           <div className="avatar">{user?.firstName?.[0] || "U"}</div>
           <div className="user-info">
             <span className="user-name">Hi, {user?.firstName}!</span>
@@ -26,19 +30,25 @@ export const Sidebar: FC = () => {
       </div>
 
       <nav className="sidebar-nav">
-        <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <LayoutDashboard size={20} /> 
+        <NavLink
+          to="/"
+          className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+        >
+          <LayoutDashboard size={20} />
           <span>Dashboard</span>
         </NavLink>
-        <NavLink to="/history" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <HistoryIcon size={20} /> 
+        <NavLink
+          to="/history"
+          className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+        >
+          <HistoryIcon size={20} />
           <span>History</span>
         </NavLink>
       </nav>
 
       <div className="sidebar-footer">
         <button onClick={logout} className="nav-item logout-nav-item">
-          <LogOut size={20} /> 
+          <LogOut size={20} />
           <span>Logout</span>
         </button>
       </div>

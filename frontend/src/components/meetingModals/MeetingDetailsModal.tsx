@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { MapPin, X, Users } from "lucide-react";
 import { api } from "../../services";
 import { Meeting } from "../../types";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context";
 import "./Modal.css";
 
 type MeetingDetailsModalProps = {

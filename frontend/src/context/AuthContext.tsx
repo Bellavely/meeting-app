@@ -6,9 +6,13 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { setAccessToken, api } from "../services";
+import {
+  setAccessToken,
+  api,
+  disconnectSocket,
+  connectSocket,
+} from "../services";
 import { User } from "../types/user";
-import { connectSocket, disconnectSocket } from "../services";
 
 type AuthContextType = {
   user: User | null;

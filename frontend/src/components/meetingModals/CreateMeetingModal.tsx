@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect, useCallback } from "react";
 import { MapPin, X, Search } from "lucide-react";
 import { api } from "../../services";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context";
 import "./Modal.css";
 import { ConfirmModal } from "../confirmModal";
 import { Meeting } from "../../types";
