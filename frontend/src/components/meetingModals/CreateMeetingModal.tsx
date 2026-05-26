@@ -12,7 +12,6 @@ type CreateMeetingModalProps = {
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialData?: Meeting;
-  selectedDate?: Date;
   meetings: Meeting[];
   isSubmitting?: boolean;
 };
@@ -22,7 +21,6 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   onClose,
   onSubmit,
   initialData,
-  selectedDate = new Date(),
   meetings,
   isSubmitting = false,
 }) => {
@@ -57,20 +55,6 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       if (initialData.address) {
         setIsInternalUpdate(true);
       }
-      setSuggestions([]);
-    } else {
-      setFormData({
-        title: "",
-        description: "",
-        date: selectedDate
-          ? selectedDate.toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0],
-        startTime: "00:00",
-        endTime: "00:00",
-        address: "",
-        latitude: 0,
-        longitude: 0,
-      });
     }
     setSuggestions([]);
     if (initialData?.participants) {
@@ -271,7 +255,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
               {isSearching && (
                 <div className="searching-indicator">Searching...</div>
               )}
-              {suggestions.length > 0 && (
+              {suggestions.length > 0 && formData.address?.trim() === "" && (
                 <div className="suggestions-dropdown">
                   {suggestions.map((value, index) => (
                     <div
