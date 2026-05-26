@@ -36,7 +36,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
     longitude: 0,
     participants: [],
   });
-
+  const isBlockedRef = React.useRef(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isInternalUpdate, setIsInternalUpdate] = useState(false);
@@ -134,26 +134,41 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (isSubmitting || !!(formData.address && !formData.latitude)) return;
-      const { isDoubleBooked } = (
-        await api.get("/meetings/double-booking-check", {
-          params: {
-            startTime: new Date(
-              `${formData.date}T${formData.startTime}`,
-            ).toISOString(),
-            endTime: new Date(
-              `${formData.date}T${formData.endTime}`,
-            ).toISOString(),
-            excludeMeetingId:
-              initialData?.id?.trim() === "" ? null : initialData?.id,
-          },
-        })
-      ).data;
-      if (isDoubleBooked) {
-        setIsBusy(true);
+      if (
+        isBlockedRef.current ||
+        isSubmitting ||
+        !!(formData.address && !formData.latitude)
+      )
         return;
+      isBlockedRef.current = true;
+      try {
+        const { isDoubleBooked } = (
+          await api.get("/meetings/double-booking-check", {
+            params: {
+              startTime: new Date(
+                `${formData.date}T${formData.startTime}`,
+              ).toISOString(),
+              endTime: new Date(
+                `${formData.date}T${formData.endTime}`,
+              ).toISOString(),
+              excludeMeetingId:
+                initialData?.id?.trim() === "" ? null : initialData?.id,
+            },
+          })
+        ).data;
+        if (isDoubleBooked) {
+          setIsBusy(true);
+          isBlockedRef.current = false;
+          return;
+        }
+        onSubmit({ ...formData, participants });
+        isBlockedRef.current = false;
+      } catch (error) {
+        toast.error(
+          `somthing went wrong.. ${initialData?.id ? "editing" : "creating"} this meeting`,
+        );
+        isBlockedRef.current = false;
       }
-      onSubmit({ ...formData, participants });
     },
     [onSubmit, formData, participants, meetings],
   );
@@ -401,8 +416,11 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
         message={`Are you sure you want to ${initialData ? "edit" : "create"} this meeting? 
           You already have another meeting scheduled at this same time. `}
         onConfirm={() => {
+          if (isBlockedRef.current) return;
+          isBlockedRef.current = true;
           onSubmit({ ...formData, participants });
           setIsBusy(false);
+          isBlockedRef.current = false;
         }}
         onCancel={() => setIsBusy(false)}
         isLoading={isSubmitting}
