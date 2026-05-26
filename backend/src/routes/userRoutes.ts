@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { searchUsers } from '../api/controllers/participantController';
+import { searchUsers } from '../api/controllers';
 import { authMiddleware } from '../middleware/authMiddleware';
 
 export const userRouter = Router();

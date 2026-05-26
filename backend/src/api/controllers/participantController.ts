@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 import * as paricipantsService from "../../bl";
 import * as meetingService from "../../bl/meetingService";
-import * as UserModel from "../../dal/models/User";
-import { participantEmailSchema } from "../../validators";
 import { Participant } from "../../types";
 
 export const inviteParticipant = async (
@@ -73,27 +71,6 @@ export const getMeetingParticipants = async (
   }
 };
 
-export const searchUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { q } = req.query;
-    if (!q || typeof q !== "string") {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Search query is required" });
-    }
-
-    const users = await UserModel.searchUsers(q);
-
-    res.status(StatusCodes.OK).json(users);
-  } catch (error: any) {
-    next(error);
-  }
-};
-
 export const getMyInvitations = async (
   req: Request,
   res: Response,
@@ -103,51 +80,6 @@ export const getMyInvitations = async (
     const userId = (req as any).user.id;
     const invitations = await paricipantsService.getUserInvitations(userId);
     res.status(StatusCodes.OK).json(invitations);
-  } catch (error: any) {
-    next(error);
-  }
-};
-
-export const syncMeetingParticipants = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const meetingId = req.params.id as string;
-    const { data, error, success } = participantEmailSchema.safeParse(req.body);
-    const organizerId = (req as any).user.id;
-
-    if (!success) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: error.flatten().fieldErrors });
-    }
-
-    const { addedUserIds, removedUsers } =
-      await paricipantsService.syncParticipants(
-        meetingId,
-        data.emails,
-        organizerId,
-      );
-
-    const io = req.app.get("io");
-
-    if (io && addedUserIds.length > 0) {
-      for (const userId of addedUserIds) {
-        io.to(userId).emit("refetch_meetings");
-      }
-    }
-
-    if (io && removedUsers.length > 0) {
-      for (const userId of removedUsers) {
-        io.to(userId).emit("refetch_meetings");
-      }
-    }
-
-    res
-      .status(StatusCodes.OK)
-      .json({ message: "Participants synced successfully" });
   } catch (error: any) {
     next(error);
   }
