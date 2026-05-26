@@ -255,7 +255,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
               {isSearching && (
                 <div className="searching-indicator">Searching...</div>
               )}
-              {suggestions.length > 0 && formData.address?.trim() === "" && (
+              {suggestions.length > 0 && (
                 <div className="suggestions-dropdown">
                   {suggestions.map((value, index) => (
                     <div
