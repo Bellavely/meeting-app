@@ -1,5 +1,3 @@
-import { Meeting } from "./meeting";
-
 export type Invitation = {
   id: string;
   endTime: string;
@@ -8,5 +6,4 @@ export type Invitation = {
   meetingId: string;
   organizerFirstName: string;
   organizerLastName: string;
-  meeting: Omit<Meeting, "id" | "participants" | "latitude" | "longitude">;
 };

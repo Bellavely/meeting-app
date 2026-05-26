@@ -6,7 +6,12 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { setAccessToken, api } from "../api/api";
+import {
+  setAccessToken,
+  api,
+  disconnectSocket,
+  connectSocket,
+} from "../services";
 import { User } from "../types/user";
 
 type AuthContextType = {
@@ -31,6 +36,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
         const { accessToken, user: userData } = response.data;
         setAccessToken(accessToken);
         setUser(userData);
+        connectSocket(accessToken);
       } catch (err) {
         console.log("No active session");
       } finally {
@@ -40,9 +46,9 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     initAuth();
   }, []);
 
-
   const login = (token: string, userData: User) => {
     setAccessToken(token);
+    connectSocket(token);
     setUser(userData);
   };
 
@@ -52,6 +58,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     } finally {
       setAccessToken(null);
       setUser(null);
+      disconnectSocket();
       window.location.href = "/login";
     }
   };
@@ -61,7 +68,9 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUserData, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, updateUserData, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

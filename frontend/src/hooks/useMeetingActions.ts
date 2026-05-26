@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api } from "../api/api";
+import { api } from "../services";
 import { Meeting } from "../types";
 import { toast } from "sonner";
 
@@ -13,8 +13,8 @@ export const useMeetingActions = (onSuccess?: () => void) => {
     title: "",
     description: "",
     date: "",
-    startTime: "00:00",
-    endTime: "00:00",
+    startTime: "09:00",
+    endTime: "10:00",
     address: "",
     participants: [],
   });
@@ -45,8 +45,8 @@ export const useMeetingActions = (onSuccess?: () => void) => {
       id: "",
       title: "",
       description: "",
-      startTime: "00:00",
-      endTime: "00:00",
+      startTime: "09:00",
+      endTime: "10:00",
       date: defaultDate
         ? `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, "0")}-${String(defaultDate.getDate()).padStart(2, "0")}`
         : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,

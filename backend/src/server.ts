@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import http from "http";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { StatusCodes } from "http-status-codes";
@@ -7,12 +8,14 @@ import { routes } from "./routes";
 import { pool } from "./config/db";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import { runMigrations } from "./dal/db/init-db";
-
+import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 const allowdOrigins = process.env.CLIENT;
+const server = http.createServer(app);
 app.use(
   cors({
     origin: allowdOrigins,
@@ -21,6 +24,40 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+const io = new Server(server, {
+  cors: {
+    origin: allowdOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["polling", "websocket"],
+});
+
+app.set("io", io);
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+
+  if (!token) {
+    return next(new Error("Authentication error: No token provided"));
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+    };
+
+    (socket as any).userId = decoded.id;
+    next();
+  } catch (err) {
+    return next(new Error("Authentication error: Invalid token"));
+  }
+});
+io.on("connection", (socket) => {
+  const userId = (socket as any).userId;
+  socket.join(userId);
+});
+
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api", routes);
@@ -38,7 +75,7 @@ app.get("/health", async (_req, res) => {
   }
 });
 
-app.listen(Number(port), process.env.HOST!, async () => {
+server.listen(Number(port), process.env.HOST!, async () => {
   console.log(`Server running on port ${port}`);
   try {
     await runMigrations();

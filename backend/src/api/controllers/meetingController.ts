@@ -7,6 +7,7 @@ import {
   doubleBookingCheckSchema,
   updateMeetingSchema,
 } from "../../validators";
+import { notifyParticipantsToRefetch } from "../../utils";
 
 export const createMeeting = async (
   req: Request,
@@ -22,9 +23,11 @@ export const createMeeting = async (
         errors: error.flatten().fieldErrors,
       });
     }
-
+    const io = req.app.get("io");
     const userId = (req as any).user.id;
     const meeting = await meetingService.createMeeting(data, userId);
+    notifyParticipantsToRefetch(io, data.participants);
+
     res.status(StatusCodes.CREATED).json(meeting);
   } catch (error) {
     next(error);
@@ -129,9 +132,14 @@ export const updateMeeting = async (
       });
     }
 
+    const { updatedMeeting, addedParticipantIds, removeParticipantsIds } =
+      await meetingService.updateMeeting(id, data, userId);
 
-    const updated = await meetingService.updateMeeting(id, data, userId);
-    res.status(StatusCodes.OK).json(updated);
+    const io = req.app.get("io");
+    notifyParticipantsToRefetch(io, addedParticipantIds);
+    notifyParticipantsToRefetch(io, removeParticipantsIds);
+
+    res.status(StatusCodes.OK).json(updatedMeeting);
   } catch (error: any) {
     next(error);
   }

@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { Search, Filter } from "lucide-react";
-import { api } from "../../api/api";
+import { api } from "../../services/api";
 import { MeetingCard, MeetingManagementModals } from "../../components";
 import { Meeting } from "../../types";
 import { useMeetingActions } from "../../hooks/useMeetingActions";

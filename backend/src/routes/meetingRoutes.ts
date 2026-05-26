@@ -7,7 +7,6 @@ import {
   deleteMeeting,
   getMyInvitations,
   getMeetingParticipants,
-  syncMeetingParticipants,
   inviteParticipant,
   respondToInvitation,
   isDoubleBooked,
@@ -26,7 +25,6 @@ meetingRouter.get("/double-booking-check", isDoubleBooked);
 meetingRouter.get("/invitations", getMyInvitations);
 meetingRouter.get("/:id/participants", getMeetingParticipants);
 
-meetingRouter.post("/:id/participants/sync", syncMeetingParticipants);
 meetingRouter.post("/", createMeeting);
 meetingRouter.post("/:id/invite", inviteParticipant);
 

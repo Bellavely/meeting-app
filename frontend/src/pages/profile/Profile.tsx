@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from "react";
 import { User as UserIcon, Mail, ArrowLeft } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { api } from "../../api/api";
+import { api } from "../../services";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
@@ -32,9 +32,7 @@ export const Profile: FC = () => {
     try {
       const response = await api.put("/auth/update", formData);
       if (response.status !== 200) {
-        toast.error(
-          "Failed to update profile",
-        );
+        toast.error("Failed to update profile");
       }
       updateUserData(response.data);
       toast.success("Profile updated successfully");

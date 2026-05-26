@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect, useCallback } from "react";
 import { MapPin, X, Search } from "lucide-react";
-import { api } from "../../api/api";
-import { useAuth } from "../../context/AuthContext";
+import { api } from "../../services";
+import { useAuth } from "../../context";
 import "./Modal.css";
 import { ConfirmModal } from "../confirmModal";
 import { Meeting } from "../../types";
@@ -12,7 +12,6 @@ type CreateMeetingModalProps = {
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialData?: Meeting;
-  selectedDate?: Date;
   meetings: Meeting[];
   isSubmitting?: boolean;
 };
@@ -22,7 +21,6 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   onClose,
   onSubmit,
   initialData,
-  selectedDate = new Date(),
   meetings,
   isSubmitting = false,
 }) => {
@@ -57,20 +55,6 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
       if (initialData.address) {
         setIsInternalUpdate(true);
       }
-      setSuggestions([]);
-    } else {
-      setFormData({
-        title: "",
-        description: "",
-        date: selectedDate
-          ? selectedDate.toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0],
-        startTime: "00:00",
-        endTime: "00:00",
-        address: "",
-        latitude: 0,
-        longitude: 0,
-      });
     }
     setSuggestions([]);
     if (initialData?.participants) {
