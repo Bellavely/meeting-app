@@ -134,6 +134,7 @@ export const CreateMeetingModal: FC<CreateMeetingModalProps> = ({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+      if (isSubmitting || !!(formData.address && !formData.latitude)) return;
       const { isDoubleBooked } = (
         await api.get("/meetings/double-booking-check", {
           params: {
